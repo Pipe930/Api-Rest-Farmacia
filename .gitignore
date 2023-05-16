@@ -1,0 +1,9 @@
+# Variables de Entorno
+env/
+.env
+venv/
+.venv
+
+# Python
+__pycache__/
+migrations
