@@ -1,5 +1,5 @@
 from rest_framework.response import Response
-from rest_framework import generics, status, filters
+from rest_framework import generics, status
 from django.http import Http404
 from .models import Producto, Categoria, Oferta
 from .serializer import OfertaSerializer, ProductoSerializer, CategoriaSerializer

@@ -35,6 +35,7 @@ BASE_APPS = [
 
 LOCAL_APPS = [
     'apps.productos.apps.ProductosConfig',
+    'apps.sucursales.apps.SucursalesConfig'
 ]
 
 THIRD_APPS = [
