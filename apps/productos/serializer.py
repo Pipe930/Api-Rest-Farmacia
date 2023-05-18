@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from .models import Producto, Categoria, Oferta, DetalleBodega
+from .descuento import discount
 
 class ProductoSerializer(serializers.ModelSerializer):
 
@@ -7,6 +8,8 @@ class ProductoSerializer(serializers.ModelSerializer):
 
         model = Producto
         fields = ["id_producto", "nombre", "stock", "precio", "disponible", "descripcion", "id_oferta"]
+
+    precio = serializers.SerializerMethodField(method_name="precio_descuento")
 
     def create(self, validated_data):
 
@@ -26,6 +29,16 @@ class ProductoSerializer(serializers.ModelSerializer):
         instance.save()
 
         return instance
+    
+    def precio_descuento(self, producto: Producto):
+
+        if producto.id_oferta is not None:
+
+            precio_final = discount(producto.precio, producto.id_oferta.descuento)
+
+            return precio_final
+
+        return producto.precio
     
 class CategoriaSerializer(serializers.ModelSerializer):
 

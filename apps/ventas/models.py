@@ -71,7 +71,7 @@ class Orden(models.Model):
     id_orden = models.BigAutoField(primary_key=True)
     codigo = models.UUIDField(default=uuid4, unique=True)
     creado = models.DateTimeField(auto_now_add=True)
-    condicion = models.CharField(max_length=20, choices=CHOICES_CONDITION, default="En Preparacion")
+    condicion = models.CharField(max_length=20, choices=CHOICES_CONDITION, default="en preparacion")
     tipo_retiro = models.CharField(max_length=20, choices=CHOICES_WITHDRAWAL)
     direccion = models.CharField(max_length=100)
     num_departamento = models.PositiveSmallIntegerField(blank=True, null=True)

@@ -4,6 +4,7 @@ from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.authtoken.models import Token
 from rest_framework.permissions import AllowAny
 from django.contrib.auth import authenticate, login, logout
+from apps.ventas.models import Carrito
 from .serializer import UsuarioSerializer
 from rest_framework.parsers import JSONParser
 
@@ -54,7 +55,7 @@ class LoginView(ObtainAuthToken):
                 if user.is_active:
 
                     token, created = Token.objects.get_or_create(user=user)
-                    # cart, createCart = Cart.objects.get_or_create(id_user=user)
+                    carrito, carritoCreado = Carrito.objects.get_or_create(id_user=user)
 
                     if created:
 
@@ -63,10 +64,10 @@ class LoginView(ObtainAuthToken):
                         userJson = {
                             "token": token.key,
                             "username": user.username,
-                            "user_id": user.id,
+                            "id_usuario": user.id_usuario,
                             "activate": user.is_active,
                             "staff": user.is_staff,
-                            # "idCart": cart.id
+                            "id_carrito": carrito.id
                         }
 
                         return Response(userJson, status.HTTP_200_OK)
@@ -80,7 +81,7 @@ class LoginView(ObtainAuthToken):
                         "user_id": user.id,
                         "activate": user.is_active,
                         "staff": user.is_staff,
-                        # "idCart": cart.id
+                        "id_carrito": carrito.id
                     }
 
                     return Response(userJson, status.HTTP_200_OK)
