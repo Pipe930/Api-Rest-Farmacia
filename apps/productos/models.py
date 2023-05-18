@@ -25,7 +25,7 @@ class Producto(models.Model):
     stock = models.PositiveIntegerField()
     disponible = models.BooleanField(default=True)
     creado = models.DateTimeField(auto_now_add=True)
-    descripcion = models.TextField()
+    descripcion = models.TextField(default="(Sin Descripcion)", blank=True, null=True)
     id_oferta = models.ForeignKey(Oferta, on_delete=models.SET_NULL, blank=True, null=True)
 
     def __str__(self) -> str:

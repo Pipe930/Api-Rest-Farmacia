@@ -5,7 +5,7 @@ class Region(models.Model):
 
     id_region = models.BigAutoField(primary_key=True)
     nombre = models.CharField(max_length=60)
-    siglas = models.CharField(max_length=8)
+    sigla = models.CharField(max_length=8)
 
     class Meta:
 

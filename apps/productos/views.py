@@ -110,7 +110,7 @@ class DetalleCategoriaView(generics.RetrieveUpdateDestroyAPIView):
     def get_object(self, id:int):
 
         try:
-            categoria = Categoria.objects.get(id_producto = id)
+            categoria = Categoria.objects.get(id_categoria = id)
         except Producto.DoesNotExist:
             raise Http404
 
@@ -177,7 +177,7 @@ class DetalleOfertaView(generics.RetrieveUpdateDestroyAPIView):
     def get_object(self, id:int):
 
         try:
-            oferta = Oferta.objects.get(id_producto = id)
+            oferta = Oferta.objects.get(id_oferta = id)
         except Producto.DoesNotExist:
             raise Http404
 
