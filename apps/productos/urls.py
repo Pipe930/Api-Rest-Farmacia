@@ -13,6 +13,6 @@ urlsCategorias = [
 ]
 
 urlsOfertas = [
-        path("", views.ListarOfertasView.as_view()),
+    path("", views.ListarOfertasView.as_view()),
     path("oferta/<int:id>", views.DetalleOfertaView.as_view())
 ]
