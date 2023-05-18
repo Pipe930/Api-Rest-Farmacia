@@ -35,7 +35,8 @@ BASE_APPS = [
 
 LOCAL_APPS = [
     'apps.productos.apps.ProductosConfig',
-    'apps.sucursales.apps.SucursalesConfig'
+    'apps.sucursales.apps.SucursalesConfig',
+    'apps.users.apps.UsersConfig',
 ]
 
 THIRD_APPS = [
@@ -143,6 +144,8 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+AUTH_USER_MODEL = 'users.Usuario'
 
 REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination', 

@@ -4,7 +4,8 @@ from . import views
 
 urlsProductos = [
     path("", views.ListarProductosView.as_view()),
-    path("producto/<int:id>", views.DetalleProductoView.as_view())
+    path("producto/<int:id>", views.DetalleProductoView.as_view()),
+    path("producto", views.BuscarProductoView.as_view())
 ]
 
 urlsCategorias = [

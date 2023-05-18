@@ -1,5 +1,5 @@
 from rest_framework.response import Response
-from rest_framework import generics, status
+from rest_framework import generics, status, filters
 from django.http import Http404
 from .models import Producto, Categoria, Oferta
 from .serializer import OfertaSerializer, ProductoSerializer, CategoriaSerializer
@@ -75,6 +75,15 @@ class DetalleProductoView(generics.RetrieveUpdateDestroyAPIView):
         producto.delete()
 
         return Response({"message": "El producto a sido eliminada con exito"}, status=status.HTTP_204_NO_CONTENT)
+    
+class BuscarProductoView(generics.ListAPIView):
+
+    queryset = Producto.objects.filter(disponible=True).order_by("nombre")
+    serializer_class = ProductoSerializer
+    filter_backends = [filters.SearchFilter]
+    search_fields = ["nombre"]
+    permission_classes = [AllowAny]
+
     
 class ListarCategoriasView(generics.ListCreateAPIView):
 
