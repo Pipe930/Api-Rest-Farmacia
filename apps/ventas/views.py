@@ -1,3 +1,301 @@
-from django.shortcuts import render
+from rest_framework import status, generics
+from rest_framework.response import Response
+from .models import Carrito, Items, Compra, Orden
+from apps.productos.models import Producto
+from django.http import Http404
+from .serializer import CarritoSerializer, AgregarCarritoItemSerializer, CancelarCompraSerializer, CompraSerializer, OrdenSerializer, RestarCarritoItemSerializer
+from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.authentication import TokenAuthentication
+from rest_framework.parsers import JSONParser
 
-# Create your views here.
+class CarritoUsuarioView(generics.RetrieveAPIView):
+
+    serializer_class = CarritoSerializer
+    parser_classes = [JSONParser]
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [TokenAuthentication]
+
+    def get_object(self, idUser:int):
+
+        try:
+            carrito = Carrito.objects.get(id_usuario=idUser)
+        except Carrito.DoesNotExist:
+            raise Http404
+
+        return carrito
+
+    def get(self, request, idUser:int, format=None):
+
+        carrito = self.get_object(idUser)
+
+        serializer = self.get_serializer(carrito)
+
+        return Response(serializer.data, status.HTTP_200_OK)
+
+class CrearCarritoView(generics.CreateAPIView):
+
+    serializer_class = CarritoSerializer
+    parser_classes = [JSONParser]
+    permission_classes = [AllowAny]
+
+    def create(self, request):
+        serializer = self.get_serializer(data=request.data)
+
+        if serializer.is_valid():
+            serializer.save()
+
+            return Response(serializer.data, status.HTTP_201_CREATED)
+
+        return Response(serializer.errors, status.HTTP_400_BAD_REQUEST)
+
+class AgregarCarritoItemView(generics.CreateAPIView):
+
+    serializer_class = AgregarCarritoItemSerializer
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [TokenAuthentication]
+
+    def get_object(self, id:int):
+
+        try:
+            product = Producto.objects.get(id_producto=id)
+        except Producto.DoesNotExist:
+            raise Http404
+
+        return product
+
+    def create(self, request):
+
+        serializer = self.get_serializer(data=request.data)
+
+        if serializer.is_valid():
+
+            data = serializer.data
+
+            producto = self.get_object(data["producto"])
+
+            cantidad = data["cantidad"]
+
+            if producto.stock < cantidad:
+
+                return Response({"message": "La cantidad supera el stock disponible"}, status.HTTP_400_BAD_REQUEST)
+
+            serializer.save()
+            return Response({"data": serializer.data, "message": "Agregado al carrito con exito"}, status.HTTP_201_CREATED)
+
+        return Response(serializer.errors, status.HTTP_400_BAD_REQUEST)
+
+class RestarCarritoItemView(generics.CreateAPIView):
+
+    serializer_class = RestarCarritoItemSerializer
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [TokenAuthentication]
+
+    def create(self, request, *args, **kwargs):
+
+        serializer = self.get_serializer(data=request.data)
+
+        if serializer.is_valid():
+
+            serializer.save()
+
+            return Response({"message": "Se resto el producto"}, status.HTTP_200_OK)
+
+
+        return Response(serializer.errors, status.HTTP_400_BAD_REQUEST)
+
+class LimpiarCarritoView(generics.DestroyAPIView):
+
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [TokenAuthentication]
+
+    def get_object(self, id:int):
+
+        try:
+            carrito = Carrito.objects.get(id_carrito=id)
+        except Carrito.DoesNotExist:
+            raise Http404
+
+        return carrito
+
+    def delete(self, request, id:int, format=None):
+
+        carrito = self.get_object(id)
+
+        items = Items.objects.filter(id_carrito = carrito.id_carrito)
+
+        if len(items):
+
+            for item in items:
+                item.delete()
+
+            return Response({"message": "El carrito se a limpiado con exito"}, status.HTTP_204_NO_CONTENT)
+
+        return Response({"message": "Tu carrito esta vacio"}, status.HTTP_204_NO_CONTENT)
+
+
+class CrearCompraView(generics.CreateAPIView):
+
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [TokenAuthentication]
+    parser_classes = [JSONParser]
+    serializer_class = CompraSerializer
+
+    def post(self, request):
+
+        serializer = self.get_serializer(data=request.data)
+
+        if serializer.is_valid():
+
+            serializer.save()
+            return Response(
+                {
+                    "data": serializer.data,
+                    "message": "Se creo la compra con exito"
+                    }, status.HTTP_201_CREATED)
+
+        return Response(serializer.errors, status.HTTP_400_BAD_REQUEST)
+
+class CancelarCompraView(generics.UpdateAPIView):
+
+    serializer_class = CancelarCompraSerializer
+    parser_classes = [JSONParser]
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [TokenAuthentication]
+
+    def get_object(self, id:int):
+
+        try:
+            compra = Compra.objects.get(id_compra=id)
+        except Compra.DoesNotExist:
+            raise Http404
+
+        return compra
+
+    def put(self, request, id:int):
+
+        compra = self.get_object(id)
+        serializer = self.get_serializer(compra, data=request.data)
+
+        if serializer.is_valid():
+
+            productos = compra.productos
+            items = productos["items"]
+
+            for item in items:
+
+                id = item["id_items"]
+                cantidad = item["cantidad"]
+                prodcuto = Producto.objects.get(id_producto=id)
+
+                nuevo_stock = prodcuto.stock + cantidad
+
+                prodcuto.stock = nuevo_stock
+                prodcuto.save()
+
+            serializer.save()
+            return Response({"message": "Se a cancelado la compra"}, status.HTTP_200_OK)
+
+        return Response(serializer.errors, status.HTTP_400_BAD_REQUEST)
+
+class ListarComprasView(generics.ListAPIView):
+
+    serializer_class = CompraSerializer
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, id:int, format=None):
+
+        queryset = Compra.objects.filter(id_usuario=id, estado=True).order_by("creado")
+        serializer = self.get_serializer(queryset, many=True)
+
+        if len(serializer.data):
+
+            return Response(serializer.data, status.HTTP_200_OK)
+
+        return Response({"message":"No haz realizado ninguna compra"}, status.HTTP_204_NO_CONTENT)
+
+class DetalleCompraView(generics.RetrieveAPIView):
+
+    serializer_class = CompraSerializer
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [TokenAuthentication]
+
+    def get_object(self, id:int):
+
+        try:
+            compra = Compra.objects.get(id_compra=id)
+        except Compra.DoesNotExist:
+            raise Http404
+
+        return compra
+
+    def get(self, request, id:int):
+
+        compra = self.get_object(id)
+        serializer = self.get_serializer(compra)
+
+        return Response(serializer.data, status.HTTP_200_OK)
+    
+
+class ListarOrdenesView(generics.ListAPIView):
+
+    queryset = Orden.objects.all()
+    serializer_class = OrdenSerializer
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [TokenAuthentication]
+
+    def get(self, request, format=None):
+
+        queryset = self.get_queryset()
+        serializer = self.get_serializer(queryset, many=True)
+
+        if len(serializer.data):
+
+            return Response({"orders": serializer.data}, status.HTTP_200_OK)
+
+        return Response({"message": "No hay pedidos registrados"}, status.HTTP_204_NO_CONTENT)
+
+class DetalleOrdenView(generics.RetrieveAPIView):
+
+    serializer_class = OrdenSerializer
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [TokenAuthentication]
+
+    def get_object(self, id:int):
+
+        try:
+            orden = Orden.objects.get(id_orden=id)
+        except Orden.DoesNotExist:
+            raise Http404
+
+        return orden
+
+    def get(self, request, id:int, format=None):
+
+        orden = self.get_object(id)
+        serializer = self.get_serializer(orden)
+
+        return Response(serializer.data, status.HTTP_200_OK)
+
+class CrearOrdenView(generics.CreateAPIView):
+
+    serializer_class = OrdenSerializer
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [TokenAuthentication]
+    parser_classes = [JSONParser]
+
+    def post(self, request, format=None):
+
+        serializer = self.get_serializer(data=request.data)
+
+        if serializer.is_valid():
+
+            serializer.save()
+
+            return Response(
+                {
+                    "data": serializer.data,
+                    "message": "pedido creado con exito"
+                    }, status=status.HTTP_201_CREATED)
+
+        return Response(serializer.errors, status.HTTP_400_BAD_REQUEST)

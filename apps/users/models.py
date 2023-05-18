@@ -12,8 +12,8 @@ class UserManager(BaseUserManager):
         user = self.model(
             username = username,
             correo = self.normalize_email(correo),
-            first_name = nombre,
-            last_name = apellido,
+            nombre = nombre,
+            apellido = apellido,
             is_staff = is_staff,
             is_superuser = is_superuser,
             **extra_fields
@@ -35,7 +35,6 @@ class UserManager(BaseUserManager):
 # User Model
 class Usuario(AbstractBaseUser, PermissionsMixin):
 
-    id_usuario = models.BigAutoField(primary_key=True)
     username = models.CharField(max_length=60, unique=True)
     correo = models.EmailField("Correo", max_length=255, unique=True)
     nombre = models.CharField("Nombre", max_length=20, blank=True, null=True, default="(Sin Nombre)")

@@ -6,7 +6,7 @@ from apps.productos.descuento import discount
 from .total_carrito import calculate_total_price, cart_total
 from .descontar_stock import DescuentoStock
 
-class OrderSerializer(serializers.ModelSerializer):
+class OrdenSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Orden
@@ -46,7 +46,7 @@ class CancelarCompraSerializer(serializers.ModelSerializer):
     class Meta:
 
         model = Compra
-        fields = ["state"]
+        fields = ["estado"]
 
     def update(self, instance, validated_data):
 
@@ -84,7 +84,7 @@ class ItemsSerializer(serializers.ModelSerializer):
         resultado = item.cantidad * precio
         return resultado
 
-class CartSerializer(serializers.ModelSerializer):
+class CarritoSerializer(serializers.ModelSerializer):
 
     items = ItemsSerializer(many=True, read_only=True)
     total = serializers.SerializerMethodField(method_name="main_total")
@@ -105,7 +105,7 @@ class CartSerializer(serializers.ModelSerializer):
         carrtio = Carrito.objects.create(**validated_data)
         return carrtio
 
-class AddCartItemSerializer(serializers.ModelSerializer):
+class AgregarCarritoItemSerializer(serializers.ModelSerializer):
 
     class Meta:
 
@@ -153,7 +153,7 @@ class AddCartItemSerializer(serializers.ModelSerializer):
         return self.instance
 
 # Substract Cart serializer
-class SubtractCartItemSerializer(serializers.ModelSerializer):
+class RestarCarritoItemSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Items

@@ -55,7 +55,7 @@ class LoginView(ObtainAuthToken):
                 if user.is_active:
 
                     token, created = Token.objects.get_or_create(user=user)
-                    carrito, carritoCreado = Carrito.objects.get_or_create(id_user=user)
+                    carrito, carritoCreado = Carrito.objects.get_or_create(id_usuario=user)
 
                     if created:
 
@@ -64,10 +64,10 @@ class LoginView(ObtainAuthToken):
                         userJson = {
                             "token": token.key,
                             "username": user.username,
-                            "id_usuario": user.id_usuario,
+                            "id_usuario": user.id,
                             "activate": user.is_active,
                             "staff": user.is_staff,
-                            "id_carrito": carrito.id
+                            "id_carrito": carrito.id_carrito
                         }
 
                         return Response(userJson, status.HTTP_200_OK)
@@ -81,7 +81,7 @@ class LoginView(ObtainAuthToken):
                         "user_id": user.id,
                         "activate": user.is_active,
                         "staff": user.is_staff,
-                        "id_carrito": carrito.id
+                        "id_carrito": carrito.id_carrito
                     }
 
                     return Response(userJson, status.HTTP_200_OK)
