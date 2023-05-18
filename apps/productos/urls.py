@@ -3,6 +3,16 @@ from rest_framework.urlpatterns import format_suffix_patterns
 from . import views
 
 urlsProductos = [
-    path("", views.ListaProductosView.as_view()),
+    path("", views.ListarProductosView.as_view()),
     path("producto/<int:id>", views.DetalleProductoView.as_view())
+]
+
+urlsCategorias = [
+    path("", views.ListarCategoriasView.as_view()),
+    path("categoria/<int:id>", views.DetalleCategoriaView.as_view())
+]
+
+urlsOfertas = [
+        path("", views.ListarOfertasView.as_view()),
+    path("oferta/<int:id>", views.DetalleOfertaView.as_view())
 ]
