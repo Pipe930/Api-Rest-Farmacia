@@ -9,7 +9,7 @@ class ProductoSerializer(serializers.ModelSerializer):
         model = Producto
         fields = ["id_producto", "nombre", "stock", "precio", "disponible", "descripcion", "id_oferta"]
 
-    precio = serializers.SerializerMethodField(method_name="precio_descuento")
+    # precio = serializers.SerializerMethodField(method_name="precio_descuento")
 
     def create(self, validated_data):
 

@@ -22,8 +22,8 @@ class DescuentoStock():
 
         for items in items_user:
 
-            cantidad_item = items.quantity
-            producto_stock = items.product.stock
+            cantidad_item = items.cantidad
+            producto_stock = items.producto.stock
 
             nuevo_stock = producto_stock - cantidad_item
 

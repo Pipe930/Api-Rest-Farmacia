@@ -3,7 +3,7 @@ from .models import Carrito
 # Method calculate cart total
 def cart_total(id_carrito):
 
-    carrito = Carrito.objects.get(id_carrito=int(id_carrito))
+    carrito = Carrito.objects.get(id_carrito=int(id_carrito.id_carrito))
 
     items = carrito.items.all()
     total = sum([item.cantidad * item.producto.precio for item in items])
@@ -30,6 +30,6 @@ def calculate_total_price(items) -> int:
 
         precio = item.producto.precio
 
-        precio_total += item.quantity * precio
+        precio_total += item.cantidad * precio
 
     return precio_total

@@ -71,7 +71,7 @@ class ItemsSerializer(serializers.ModelSerializer):
     class Meta:
 
         model = Items
-        fields = ["id_producto", "nombre", "precio", "stock"]
+        fields = ["id_carrito", "producto", "cantidad", "precio"]
 
     def total(self, item: Items):
 
@@ -79,7 +79,7 @@ class ItemsSerializer(serializers.ModelSerializer):
 
             precio = discount(item.producto.precio, item.producto.id_oferta.descuento)
 
-        precio = item.product.price
+        precio = item.producto.precio
 
         resultado = item.cantidad * precio
         return resultado
@@ -139,7 +139,7 @@ class AgregarCarritoItemSerializer(serializers.ModelSerializer):
 
             if producto2.stock > cantidad:
 
-                nuevoPrecio = producto2.price * cantidad
+                nuevoPrecio = producto2.precio * cantidad
 
                 self.instance = Items.objects.create(
                     producto=producto,
