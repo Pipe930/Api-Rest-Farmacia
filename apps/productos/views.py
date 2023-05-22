@@ -1,8 +1,8 @@
 from rest_framework.response import Response
 from rest_framework import generics, status, filters
 from django.http import Http404
-from .models import Producto, Categoria, Oferta
-from .serializer import OfertaSerializer, ProductoSerializer, CategoriaSerializer
+from .models import Producto, Categoria, Oferta, Bodega
+from .serializer import OfertaSerializer, ProductoSerializer, CategoriaSerializer, BodegaSerialzer
 from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.parsers import JSONParser
 from rest_framework.permissions import AllowAny
@@ -218,3 +218,71 @@ class DetalleOfertaView(generics.RetrieveUpdateDestroyAPIView):
         oferta.delete()
 
         return Response({"message": "La oferta a sido eliminada con exito"}, status=status.HTTP_204_NO_CONTENT)
+    
+
+class ListarBodegasView(generics.ListCreateAPIView):
+
+    serializer_class = BodegaSerialzer
+    permission_classes = [AllowAny]
+    parser_classes = [JSONParser]
+    queryset = Bodega.objects.all()
+
+    def get(self, request, format=None):
+
+        queryset = self.get_queryset()
+        serializer = self.serializer_class(queryset, many=True)
+
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    
+    def post(self, request, format=None):
+
+        serializer = self.get_serializer(data=request.data)
+
+        if serializer.is_valid():
+
+            serializer.save()
+
+            return Response({"data": serializer.data, "message": "Se creo la bodega con exito"}, status.HTTP_201_CREATED)
+        
+        return Response(serializer.errors, status.HTTP_400_BAD_REQUEST)
+    
+class DetalleBodegaView(generics.RetrieveUpdateDestroyAPIView):
+
+    serializer_class = BodegaSerialzer
+    permission_classes = [AllowAny]
+
+    def get_object(self, id:int):
+
+        try:
+            bodega = Bodega.objects.get(id_bodega = id)
+        except Bodega.DoesNotExist:
+            raise Http404
+
+        return bodega
+    
+    def get(self, request, id:int, format=None):
+
+        bodega = self.get_object(id)
+        serializer = self.get_serializer(bodega)
+
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    
+    def put(self, request, id:int, fromat=None):
+
+        bodega = self.get_object(id)
+        serializer = self.get_serializer(bodega, data=request.data)
+
+        if not serializer.is_valid():
+
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        
+        serializer.save()
+        return Response({"data":serializer.data, "message": "La bodega se actualizado con exito"}, status=status.HTTP_200_OK)
+
+    
+    def delete(self, request, id:int, format=None):
+
+        bodega = self.get_object(id)
+        bodega.delete()
+
+        return Response({"message": "La bodega a sido eliminada con exito"}, status=status.HTTP_204_NO_CONTENT)

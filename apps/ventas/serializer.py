@@ -43,6 +43,8 @@ class CompraSerializer(serializers.ModelSerializer):
 
 class CancelarCompraSerializer(serializers.ModelSerializer):
 
+    estado = serializers.BooleanField()
+
     class Meta:
 
         model = Compra
@@ -61,7 +63,7 @@ class UnProductoSerializer(serializers.ModelSerializer):
     class Meta:
 
         model = Producto
-        fields = ["id_producto", "nombre", "precio", "stock"]
+        fields = ["id_producto", "nombre", "precio"]
 
 class ItemsSerializer(serializers.ModelSerializer):
 
@@ -161,6 +163,7 @@ class RestarCarritoItemSerializer(serializers.ModelSerializer):
 
     def save(self, **kwargs):
         try:
+            
             producto = self.validated_data["producto"]
             id_carrito = self.validated_data["id_carrito"]
 
@@ -173,7 +176,9 @@ class RestarCarritoItemSerializer(serializers.ModelSerializer):
             raise Http404
 
         if cartitem.cantidad == 1:
+
             cartitem.delete()
+            return self.instance
 
         cartitem.cantidad -= 1
         cartitem.precio = cartitem.cantidad * cartitem.producto.precio

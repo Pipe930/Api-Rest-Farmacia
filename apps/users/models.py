@@ -57,4 +57,4 @@ class Usuario(AbstractBaseUser, PermissionsMixin):
         return (self.username,)
 
     def __str__(self) -> str:
-        return f"{self.nombre} {self.apellido}"
+        return self.username

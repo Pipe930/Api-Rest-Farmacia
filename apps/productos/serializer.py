@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Producto, Categoria, Oferta, DetalleBodega
+from .models import Producto, Categoria, Oferta, DetalleBodega, Bodega
 from .descuento import discount
 
 class ProductoSerializer(serializers.ModelSerializer):
@@ -85,7 +85,7 @@ class OfertaSerializer(serializers.ModelSerializer):
 
         return instance
     
-class DetalleBodega(serializers.ModelSerializer):
+class DetalleBodegaSerializer(serializers.ModelSerializer):
 
     class Meta:
 
@@ -103,6 +103,30 @@ class DetalleBodega(serializers.ModelSerializer):
         instance.stock = validated_data.get("stock", instance.stock)
         instance.id_producto = validated_data.get("id_producto", instance.id_producto)
         instance.id_bodega = validated_data.get("id_bodega", instance.id_bodega)
+
+        instance.save()
+
+        return instance 
+    
+class BodegaSerialzer(serializers.ModelSerializer):
+
+    class Meta:
+
+        model = Bodega
+        fields = "__all__"
+
+    def create(self, validated_data):
+
+        bodega = Bodega.objects.create(**validated_data)
+
+        return bodega
+    
+    def update(self, instance, validated_data):
+
+        instance.nombre = validated_data.get("nombre", instance.nombre)
+        instance.direccion = validated_data.get("direccion", instance.direccion)
+        instance.temperatura = validated_data.get("temperatura", instance.temperatura)
+        instance.capacidad = validated_data.get("capacidad", instance.capacidad)
 
         instance.save()
 

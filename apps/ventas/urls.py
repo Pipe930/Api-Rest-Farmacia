@@ -5,7 +5,7 @@ urlsCarritos = [
     path("usuario/<int:idUser>", views.CarritoUsuarioView.as_view()),
     path("item/agregar", views.AgregarCarritoItemView.as_view()),
     path("item/restar", views.RestarCarritoItemView.as_view()),
-    path("limipiar/<int:id>", views.LimpiarCarritoView.as_view())
+    path("limpiar/<int:id>", views.LimpiarCarritoView.as_view())
 ]
 
 urlsCompras = [

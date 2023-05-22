@@ -17,3 +17,8 @@ urlsOfertas = [
     path("", views.ListarOfertasView.as_view()),
     path("oferta/<int:id>", views.DetalleOfertaView.as_view())
 ]
+
+urlsBodegas = [
+    path("", views.ListarBodegasView.as_view()),
+    path("bodega/<int:id>", views.DetalleBodegaView.as_view())
+]

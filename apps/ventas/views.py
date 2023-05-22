@@ -173,24 +173,30 @@ class CancelarCompraView(generics.UpdateAPIView):
 
     def put(self, request, id:int):
 
+        if request.data["estado"]:
+            request.data["estado"] = False
+
         compra = self.get_object(id)
-        serializer = self.get_serializer(compra, data=request.data)
+        serializer = CancelarCompraSerializer(compra, data=request.data)
 
         if serializer.is_valid():
 
             productos = compra.productos
             items = productos["items"]
 
+            if not compra.estado:
+                return Response({"message": "Esta compra esta cancelada"}, status.HTTP_406_NOT_ACCEPTABLE)
+
             for item in items:
 
-                id = item["id_items"]
+                id = item["id_producto"]
                 cantidad = item["cantidad"]
-                prodcuto = Producto.objects.get(id_producto=id)
+                producto = Producto.objects.get(id_producto=id)
 
-                nuevo_stock = prodcuto.stock + cantidad
+                nuevo_stock = producto.stock + cantidad
 
-                prodcuto.stock = nuevo_stock
-                prodcuto.save()
+                producto.stock = nuevo_stock
+                producto.save()
 
             serializer.save()
             return Response({"message": "Se a cancelado la compra"}, status.HTTP_200_OK)
