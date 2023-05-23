@@ -11,7 +11,6 @@ from rest_framework.parsers import JSONParser
 class CarritoUsuarioView(generics.RetrieveAPIView):
 
     serializer_class = CarritoSerializer
-    parser_classes = [JSONParser]
     permission_classes = [IsAuthenticated]
     authentication_classes = [TokenAuthentication]
 
@@ -32,26 +31,11 @@ class CarritoUsuarioView(generics.RetrieveAPIView):
 
         return Response(serializer.data, status.HTTP_200_OK)
 
-class CrearCarritoView(generics.CreateAPIView):
-
-    serializer_class = CarritoSerializer
-    parser_classes = [JSONParser]
-    permission_classes = [AllowAny]
-
-    def create(self, request):
-        serializer = self.get_serializer(data=request.data)
-
-        if serializer.is_valid():
-            serializer.save()
-
-            return Response(serializer.data, status.HTTP_201_CREATED)
-
-        return Response(serializer.errors, status.HTTP_400_BAD_REQUEST)
-
 class AgregarCarritoItemView(generics.CreateAPIView):
 
     serializer_class = AgregarCarritoItemSerializer
     permission_classes = [IsAuthenticated]
+    parser_classes = [JSONParser]
     authentication_classes = [TokenAuthentication]
 
     def get_object(self, id:int):
@@ -87,6 +71,7 @@ class AgregarCarritoItemView(generics.CreateAPIView):
 class RestarCarritoItemView(generics.CreateAPIView):
 
     serializer_class = RestarCarritoItemSerializer
+    parser_classes = [JSONParser]
     permission_classes = [IsAuthenticated]
     authentication_classes = [TokenAuthentication]
 

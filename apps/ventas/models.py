@@ -9,7 +9,7 @@ class Carrito(models.Model):
     id_carrito = models.BigAutoField(primary_key=True)
     creado = models.DateTimeField(auto_now_add=True)
     total = models.PositiveIntegerField(default=0)
-    id_usuario = models.ForeignKey(Usuario, on_delete=models.CASCADE)
+    id_usuario = models.OneToOneField(Usuario, on_delete=models.CASCADE)
 
     class Meta:
 

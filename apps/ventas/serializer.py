@@ -96,9 +96,9 @@ class CarritoSerializer(serializers.ModelSerializer):
         model = Carrito
         fields = ("id_carrito", "items", "total", "id_usuario")
 
-    def main_total(self, carrtio: Carrito):
+    def main_total(self, carrito: Carrito):
 
-        items = carrtio.items.all()
+        items = carrito.items.all()
         total = calculate_total_price(items)
         return total
 

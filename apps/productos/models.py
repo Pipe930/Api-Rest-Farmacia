@@ -17,6 +17,20 @@ class Oferta(models.Model):
         verbose_name = "oferta"
         verbose_name_plural = "ofertas"
 
+class Categoria(models.Model):
+
+    id_categoria = models.BigAutoField(primary_key=True)
+    nombre = models.CharField(max_length=255)
+
+    def __str__(self) -> str:
+        return self.nombre
+    
+    class Meta:
+
+        db_table = "categoria"
+        verbose_name = "categoria"
+        verbose_name_plural = "categorias"
+
 class Producto(models.Model):
 
     id_producto = models.BigAutoField(primary_key=True)
@@ -27,6 +41,7 @@ class Producto(models.Model):
     creado = models.DateTimeField(auto_now_add=True)
     descripcion = models.TextField(default="(Sin Descripcion)", blank=True, null=True)
     id_oferta = models.ForeignKey(Oferta, on_delete=models.SET_NULL, blank=True, null=True)
+    id_categoria = models.ForeignKey(Categoria, on_delete=models.CASCADE)
 
     def __str__(self) -> str:
         return self.nombre
@@ -37,20 +52,6 @@ class Producto(models.Model):
         verbose_name = "producto"
         verbose_name_plural = "productos"
 
-class Categoria(models.Model):
-
-    id_categoria = models.BigAutoField(primary_key=True)
-    nombre = models.CharField(max_length=255)
-    id_producto = models.ForeignKey(Producto, on_delete=models.CASCADE)
-
-    def __str__(self) -> str:
-        return self.nombre
-    
-    class Meta:
-
-        db_table = "categoria"
-        verbose_name = "categoria"
-        verbose_name_plural = "categorias"
 
 class Bodega(models.Model):
 

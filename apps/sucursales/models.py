@@ -63,6 +63,20 @@ class Sucursal(models.Model):
     def __str__(self) -> str:
         return self.nombre
     
+class Cargo(models.Model):
+
+    id_cargo = models.BigAutoField(primary_key=True)
+    nombre = models.CharField(max_length=40)
+
+    class Meta:
+
+        db_table = 'cargo'
+        verbose_name = 'cargo'
+        verbose_name_plural = 'cargos'
+
+    def __str__(self) -> str:
+        return self.nombre
+    
 class Empleado(models.Model):
 
     id_empleado = models.BigAutoField(primary_key=True)
@@ -74,6 +88,7 @@ class Empleado(models.Model):
     fecha_contrato = models.DateField(auto_now_add=True)
     salario = models.PositiveIntegerField()
     id_sucursal = models.ForeignKey(Sucursal, on_delete=models.CASCADE)
+    id_cargo = models.ForeignKey(Cargo, on_delete=models.CASCADE)
 
     class Meta:
 
