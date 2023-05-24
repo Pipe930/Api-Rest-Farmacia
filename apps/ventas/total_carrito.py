@@ -35,7 +35,7 @@ def calcular_precio_total(items) -> int:
 
 def calcular_total_cantidad(id_carrito):
 
-    carrito = Carrito.objects.get(id_carrito=id_carrito)
+    carrito = Carrito.objects.get(id_carrito=int(id_carrito.id_carrito))
 
     items = carrito.items.all()
 
@@ -51,7 +51,7 @@ def calcular_total_cantidad(id_carrito):
 
 def calcular_total_productos(id_carrito):
 
-    carrito = Carrito.objects.get(id_carrito=id_carrito)
+    carrito = Carrito.objects.get(id_carrito=int(id_carrito.id_carrito))
 
     items = carrito.items.all()
 

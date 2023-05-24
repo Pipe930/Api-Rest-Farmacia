@@ -92,8 +92,8 @@ class CarritoSerializer(serializers.ModelSerializer):
 
     items = ItemsSerializer(many=True, read_only=True)
     total = serializers.SerializerMethodField(method_name="precio_total")
-    cantidad_total = serializers.SerializerMethodField(method_name="calculate_total_quantity")
-    productos_total = serializers.SerializerMethodField(method_name="calculate_total_products")
+    cantidad_total = serializers.SerializerMethodField(method_name="calcular_cantidad_total")
+    productos_total = serializers.SerializerMethodField(method_name="calcular_productos_total")
 
     class Meta:
 
@@ -109,13 +109,13 @@ class CarritoSerializer(serializers.ModelSerializer):
     
     def calcular_cantidad_total(self, carrito: Carrito):
 
-        cantidad_total = calcular_total_cantidad(carrito.id)
+        cantidad_total = calcular_total_cantidad(carrito)
 
         return cantidad_total
 
     def calcular_productos_total(self, carrito: Carrito):
 
-        cantidad_productos = calcular_total_productos(carrito.id)
+        cantidad_productos = calcular_total_productos(carrito)
 
         return cantidad_productos
 
