@@ -1,18 +1,6 @@
 from django.urls import path
 from . import views
 
-urlsRegiones = [
-    path("", views.ListarRegionesView.as_view())
-]
-
-urlsProvincias = [
-    path("", views.ListarProvinciasView.as_view())
-]
-
-urlsComunas = [
-    path("", views.ListarComunasView.as_view())
-]
-
 urlsSucursales = [
     path("", views.ListarSucursalesView.as_view()),
     path("sucursal/<int:id>", views.DetalleSucursalView.as_view())
@@ -21,4 +9,9 @@ urlsSucursales = [
 urlsEmpleados = [
     path("", views.ListarEmpleadosView.as_view()),
     path("sucursal/<int:id>", views.DetalleEmpleadoView.as_view())
+]
+
+urlsCargos = [
+    path("", views.ListarCargosView.as_view()),
+    path("cargo/<int:id>", views.DetalleCargoView.as_view())
 ]

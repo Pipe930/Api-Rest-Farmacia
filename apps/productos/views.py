@@ -2,7 +2,7 @@ from rest_framework.response import Response
 from rest_framework import generics, status, filters
 from django.http import Http404
 from .models import Producto, Categoria, Oferta, Bodega
-from .serializer import OfertaSerializer, ProductoSerializer, CategoriaSerializer, BodegaSerialzer
+from .serializer import OfertaSerializer, ProductoSerializer, CategoriaSerializer, BodegaSerialzer, CrearProductoSerializer
 from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.parsers import JSONParser
 from rest_framework.permissions import AllowAny
@@ -25,7 +25,7 @@ class ListarProductosView(generics.ListCreateAPIView):
     
     def post(self, request, format=None):
 
-        serializer = self.get_serializer(data=request.data)
+        serializer = CrearProductoSerializer(data=request.data)
 
         if serializer.is_valid():
 

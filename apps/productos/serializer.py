@@ -9,13 +9,7 @@ class ProductoSerializer(serializers.ModelSerializer):
         model = Producto
         fields = "__all__"
 
-    # precio = serializers.SerializerMethodField(method_name="precio_descuento")
-
-    def create(self, validated_data):
-
-        producto = Producto.objects.create(**validated_data)
-
-        return producto
+    precio = serializers.SerializerMethodField(method_name="precio_descuento")
     
     def update(self, instance, validated_data):
 
@@ -36,9 +30,25 @@ class ProductoSerializer(serializers.ModelSerializer):
 
             precio_final = discount(producto.precio, producto.id_oferta.descuento)
 
+            producto.precio = precio_final
+            producto.save()
+
             return precio_final
 
         return producto.precio
+    
+class CrearProductoSerializer(serializers.ModelSerializer):
+
+    class Meta:
+
+        model = Producto
+        fields = "__all__"
+
+    def create(self, validated_data):
+
+        producto = Producto.objects.create(**validated_data)
+
+        return producto
     
 class CategoriaSerializer(serializers.ModelSerializer):
 
@@ -67,7 +77,7 @@ class OfertaSerializer(serializers.ModelSerializer):
     class Meta:
 
         model = Oferta
-        fields = ["id_oferta", "nombre", "descuento"]
+        fields = ["nombre", "fecha_inicio", "fecha_termino", "descuento"]
 
     def create(self, validated_data):
 

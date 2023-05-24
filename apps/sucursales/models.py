@@ -1,50 +1,6 @@
 from django.db import models
 from apps.productos.models import Producto
-
-class Region(models.Model):
-
-    id_region = models.BigAutoField(primary_key=True)
-    nombre = models.CharField(max_length=60)
-    sigla = models.CharField(max_length=8, blank=True, null=True)
-
-    class Meta:
-
-        db_table = 'region'
-        verbose_name = 'region'
-        verbose_name_plural = 'regiones'
-
-    def __str__(self) -> str:
-        return self.nombre
-
-class Provincia(models.Model):
-
-    id_provincia = models.BigAutoField(primary_key=True)
-    nombre = models.CharField(max_length=40)
-    id_region = models.ForeignKey(Region, on_delete=models.CASCADE)
-
-    class Meta:
-
-        db_table = 'provincia'
-        verbose_name = 'provincia'
-        verbose_name_plural = 'provincias'
-
-    def __str__(self) -> str:
-        return self.nombre
-
-class Comuna(models.Model):
-
-    id_comuna = models.BigAutoField(primary_key=True)
-    nombre = models.CharField(max_length=40)
-    id_provincia = models.ForeignKey(Provincia, on_delete=models.CASCADE)
-
-    class Meta:
-
-        db_table = 'comuna'
-        verbose_name = 'comuna'
-        verbose_name_plural = 'comunas'
-
-    def __str__(self) -> str:
-        return self.nombre
+from apps.pais.models import Comuna
 
 class Sucursal(models.Model):
 

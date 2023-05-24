@@ -3,7 +3,7 @@ from .models import Orden, Compra, Carrito, Items
 from apps.productos.models import Producto
 from django.http import Http404
 from apps.productos.descuento import discount
-from .total_carrito import calculate_total_price, cart_total
+from .total_carrito import calcular_precio_total, carrito_total, calcular_total_productos, calcular_total_cantidad 
 from .descontar_stock import DescuentoStock
 
 class OrdenSerializer(serializers.ModelSerializer):
@@ -31,13 +31,15 @@ class CompraSerializer(serializers.ModelSerializer):
 
         descuento_stock = DescuentoStock()
 
-        descuento_stock.discount_stock_product(id_carrito)
+        descuento_stock.descontar_stock_producto(id_carrito)
 
         compra = Compra.objects.create(**validated_data)
 
-        descuento_stock.clean_cart(id_carrito)
+        descuento_stock.limpiar_carrito(id_carrito)
 
-        cart_total(id_carrito)
+        carrito_total(id_carrito)
+        calcular_total_cantidad(id_carrito)
+        calcular_total_productos(id_carrito)
 
         return compra
 
@@ -89,22 +91,38 @@ class ItemsSerializer(serializers.ModelSerializer):
 class CarritoSerializer(serializers.ModelSerializer):
 
     items = ItemsSerializer(many=True, read_only=True)
-    total = serializers.SerializerMethodField(method_name="main_total")
+    total = serializers.SerializerMethodField(method_name="precio_total")
+    cantidad_total = serializers.SerializerMethodField(method_name="calculate_total_quantity")
+    productos_total = serializers.SerializerMethodField(method_name="calculate_total_products")
 
     class Meta:
 
         model = Carrito
-        fields = ("id_carrito", "items", "total", "id_usuario")
+        fields = ["id_carrito", "items", "total", "id_usuario", "cantidad_total", "productos_total"]
 
-    def main_total(self, carrito: Carrito):
+    def precio_total(self, carrito: Carrito):
 
         items = carrito.items.all()
-        total = calculate_total_price(items)
+        total = calcular_precio_total(items)
+
         return total
+    
+    def calcular_cantidad_total(self, carrito: Carrito):
+
+        cantidad_total = calcular_total_cantidad(carrito.id)
+
+        return cantidad_total
+
+    def calcular_productos_total(self, carrito: Carrito):
+
+        cantidad_productos = calcular_total_productos(carrito.id)
+
+        return cantidad_productos
 
     def create(self, validated_data):
 
         carrtio = Carrito.objects.create(**validated_data)
+
         return carrtio
 
 class AgregarCarritoItemSerializer(serializers.ModelSerializer):
@@ -131,17 +149,19 @@ class AgregarCarritoItemSerializer(serializers.ModelSerializer):
 
                 cartitem.save()
 
-                cart_total(id_carrito)
+                carrito_total(id_carrito)
+                calcular_total_cantidad(id_carrito)
+                calcular_total_productos(id_carrito)
 
                 self.instance = cartitem
 
         except Items.DoesNotExist:
 
-            producto2 = Producto.objects.get(id_producto=int(producto.id_producto))
+            producto_objeto = Producto.objects.get(id_producto=int(producto.id_producto))
 
-            if producto2.stock > cantidad:
+            if producto_objeto.stock > cantidad:
 
-                nuevoPrecio = producto2.precio * cantidad
+                nuevoPrecio = producto_objeto.precio * cantidad
 
                 self.instance = Items.objects.create(
                     producto=producto,
@@ -150,11 +170,12 @@ class AgregarCarritoItemSerializer(serializers.ModelSerializer):
                     precio=nuevoPrecio
                     )
 
-                cart_total(id_carrito)
+                carrito_total(id_carrito)
+                calcular_total_cantidad(id_carrito)
+                calcular_total_productos(id_carrito)
 
         return self.instance
-
-# Substract Cart serializer
+    
 class RestarCarritoItemSerializer(serializers.ModelSerializer):
 
     class Meta:
@@ -178,12 +199,19 @@ class RestarCarritoItemSerializer(serializers.ModelSerializer):
         if cartitem.cantidad == 1:
 
             cartitem.delete()
+
+            carrito_total(cartitem.id_carrito)
+            calcular_total_cantidad(id_carrito)
+            calcular_total_productos(id_carrito)
+
             return self.instance
 
         cartitem.cantidad -= 1
         cartitem.precio = cartitem.cantidad * cartitem.producto.precio
         cartitem.save()
 
-        cart_total(cartitem.id_carrito)
+        carrito_total(cartitem.id_carrito)
+        calcular_total_cantidad(id_carrito)
+        calcular_total_productos(id_carrito)
 
         return self.instance

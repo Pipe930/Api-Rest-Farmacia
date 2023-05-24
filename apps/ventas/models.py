@@ -1,5 +1,5 @@
 from django.db import models
-from apps.users.models import Usuario
+from apps.usuarios.models import Usuario
 from apps.productos.models import Producto
 from apps.sucursales.models import Comuna, Sucursal
 from uuid import uuid4
@@ -9,6 +9,8 @@ class Carrito(models.Model):
     id_carrito = models.BigAutoField(primary_key=True)
     creado = models.DateTimeField(auto_now_add=True)
     total = models.PositiveIntegerField(default=0)
+    cantidad_total = models.PositiveIntegerField(default=0)
+    productos_total = models.PositiveIntegerField(default=0)
     id_usuario = models.OneToOneField(Usuario, on_delete=models.CASCADE)
 
     class Meta:

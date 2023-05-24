@@ -1,44 +1,5 @@
 from rest_framework import serializers
-from .models import Region, Provincia, Comuna, Empleado, DetalleSucursal, Sucursal
-
-class RegionSerializer(serializers.ModelSerializer):
-
-    class Meta:
-
-        model = Region
-        fields = "__all__"
-
-    def create(self, validated_data):
-
-        region = Region.objects.create(**validated_data)
-
-        return region
-    
-class ProvinciaSerializer(serializers.ModelSerializer):
-
-    class Meta:
-
-        model = Provincia
-        fields = "__all__"
-
-    def create(self, validated_data):
-
-        provincia = Provincia.objects.create(**validated_data)
-
-        return provincia
-    
-class ComunaSerializer(serializers.ModelSerializer):
-
-    class Meta:
-
-        model = Comuna
-        fields = "__all__"
-
-    def create(self, validated_data):
-
-        comuna = Comuna.objects.create(**validated_data)
-
-        return comuna
+from .models import Empleado, DetalleSucursal, Sucursal, Cargo
     
 class EmpleadoSerializer(serializers.ModelSerializer):
 
@@ -87,6 +48,27 @@ class SucursalSerializer(serializers.ModelSerializer):
         instance.direccion = validated_data.get("direccion", instance.direccion)
         instance.razon_social = validated_data.get("razon_social", instance.razon_social)
         instance.id_comuna = validated_data.get("id_comuna", instance.id_comuna)
+
+        instance.save()
+
+        return instance
+    
+class CargoSerializer(serializers.ModelSerializer):
+
+    class Meta:
+
+        model = Cargo
+        fields = "__all__"
+
+    def create(self, validated_data):
+
+        cargo = Cargo.objects.create(**validated_data)
+
+        return cargo
+    
+    def update(self, instance, validated_data):
+
+        instance.nombre = validated_data.get("nombre", instance.nombre)
 
         instance.save()
 

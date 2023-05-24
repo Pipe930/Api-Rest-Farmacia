@@ -4,9 +4,10 @@ from .models import Carrito, Items, Compra, Orden
 from apps.productos.models import Producto
 from django.http import Http404
 from .serializer import CarritoSerializer, AgregarCarritoItemSerializer, CancelarCompraSerializer, CompraSerializer, OrdenSerializer, RestarCarritoItemSerializer
-from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.parsers import JSONParser
+from .total_carrito import calcular_total_cantidad, calcular_total_productos, carrito_total
 
 class CarritoUsuarioView(generics.RetrieveAPIView):
 
@@ -112,6 +113,10 @@ class LimpiarCarritoView(generics.DestroyAPIView):
 
             for item in items:
                 item.delete()
+
+            carrito_total(carrito)
+            calcular_total_cantidad(carrito)
+            calcular_total_productos(carrito)
 
             return Response({"message": "El carrito se a limpiado con exito"}, status.HTTP_204_NO_CONTENT)
 

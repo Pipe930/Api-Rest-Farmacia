@@ -1,7 +1,6 @@
 from .models import Carrito
 
-# Method calculate cart total
-def cart_total(id_carrito):
+def carrito_total(id_carrito):
 
     carrito = Carrito.objects.get(id_carrito=int(id_carrito.id_carrito))
 
@@ -11,8 +10,7 @@ def cart_total(id_carrito):
     carrito.total = total
     carrito.save()
 
-# Method calculate total price
-def calculate_total_price(items) -> int:
+def calcular_precio_total(items) -> int:
 
     precio_total = 0
 
@@ -33,3 +31,35 @@ def calculate_total_price(items) -> int:
         precio_total += item.cantidad * precio
 
     return precio_total
+
+
+def calcular_total_cantidad(id_carrito):
+
+    carrito = Carrito.objects.get(id_carrito=id_carrito)
+
+    items = carrito.items.all()
+
+    cantidad_total = 0
+
+    for item in items:
+        cantidad_total += item.cantidad
+
+    carrito.cantidad_total = cantidad_total
+    carrito.save()
+
+    return cantidad_total
+
+def calcular_total_productos(id_carrito):
+
+    carrito = Carrito.objects.get(id_carrito=id_carrito)
+
+    items = carrito.items.all()
+
+    cantidad_productos = 0
+    for item in items:
+        cantidad_productos += 1
+
+    carrito.productos_total = cantidad_productos
+    carrito.save()
+
+    return cantidad_productos
