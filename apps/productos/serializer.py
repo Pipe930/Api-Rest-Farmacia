@@ -7,7 +7,7 @@ class ProductoSerializer(serializers.ModelSerializer):
     class Meta:
 
         model = Producto
-        fields = ["id_producto", "nombre", "stock", "precio", "disponible", "descripcion", "id_oferta"]
+        fields = "__all__"
 
     # precio = serializers.SerializerMethodField(method_name="precio_descuento")
 
