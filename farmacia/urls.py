@@ -1,10 +1,12 @@
 
 from django.contrib import admin
 from django.urls import path, include
+
 from apps.productos.urls import urlsProductos, urlsCategorias, urlsOfertas, urlsBodegas
-from apps.sucursales.urls import urlsRegiones, urlsProvincias, urlsComunas, urlsSucursales, urlsEmpleados
-from apps.users.urls import urlsUsuarios
+from apps.sucursales.urls import urlsSucursales, urlsEmpleados, urlsCargos
+from apps.usuarios.urls import urlsUsuarios
 from apps.ventas.urls import urlsCompras, urlsCarritos, urlsOrdenes
+from apps.pais.urls import urlsComunas, urlsProvincias, urlsRegiones
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -20,5 +22,6 @@ urlpatterns = [
     path("carrito/", include(urlsCarritos)),
     path("compras/", include(urlsCompras)),
     path("pedidos/", include(urlsOrdenes)),
-    path("bodegas/", include(urlsBodegas))
+    path("bodegas/", include(urlsBodegas)),
+    path("cargos/", include(urlsCargos))
 ]
