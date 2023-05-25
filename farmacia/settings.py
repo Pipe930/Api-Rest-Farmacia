@@ -103,7 +103,7 @@ MYSQL = {
     }
 }
 
-DATABASES = MYSQL
+DATABASES = SQLITE
 
 
 # Password validation

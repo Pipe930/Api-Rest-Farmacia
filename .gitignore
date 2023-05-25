@@ -7,3 +7,6 @@ venv/
 # Python
 __pycache__/
 migrations
+
+# Base de Datos
+db.sqlite3
