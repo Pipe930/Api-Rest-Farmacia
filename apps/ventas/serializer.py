@@ -2,7 +2,7 @@ from rest_framework import serializers
 from .models import Orden, Compra, Carrito, Items
 from apps.productos.models import Producto
 from django.http import Http404
-from apps.productos.descuento import discount
+from apps.productos.descuento import descuento
 from .total_carrito import calcular_precio_total, carrito_total, calcular_total_productos, calcular_total_cantidad 
 from .descontar_stock import DescuentoStock
 
@@ -81,11 +81,16 @@ class ItemsSerializer(serializers.ModelSerializer):
 
         if item.producto.id_oferta is not None:
 
-            precio = discount(item.producto.precio, item.producto.id_oferta.descuento)
+            precio = descuento(item.producto.precio, item.producto.id_oferta.descuento)
+        else:
 
-        precio = item.producto.precio
+            precio = item.producto.precio
 
         resultado = item.cantidad * precio
+
+        item.precio = resultado
+        item.save()
+
         return resultado
 
 class CarritoSerializer(serializers.ModelSerializer):
@@ -104,6 +109,9 @@ class CarritoSerializer(serializers.ModelSerializer):
 
         items = carrito.items.all()
         total = calcular_precio_total(items)
+
+        carrito.total = total
+        carrito.save()
 
         return total
     
@@ -137,12 +145,14 @@ class AgregarCarritoItemSerializer(serializers.ModelSerializer):
         producto = self.validated_data["producto"]
         cantidad = self.validated_data["cantidad"]
         id_carrito = self.validated_data["id_carrito"]
+        
+        print(producto.id_oferta)
 
         try:
 
             cartitem = Items.objects.get(producto=producto, id_carrito=id_carrito)
 
-            if cartitem.producto.stock > cartitem.cantidad:
+            if producto.stock > cartitem.cantidad:
 
                 cartitem.cantidad += cantidad
                 cartitem.precio = cartitem.cantidad * cartitem.producto.precio
@@ -157,11 +167,9 @@ class AgregarCarritoItemSerializer(serializers.ModelSerializer):
 
         except Items.DoesNotExist:
 
-            producto_objeto = Producto.objects.get(id_producto=int(producto.id_producto))
+            if producto.stock > cantidad:
 
-            if producto_objeto.stock > cantidad:
-
-                nuevoPrecio = producto_objeto.precio * cantidad
+                nuevoPrecio = producto.precio * cantidad
 
                 self.instance = Items.objects.create(
                     producto=producto,

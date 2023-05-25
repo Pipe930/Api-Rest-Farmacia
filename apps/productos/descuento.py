@@ -1,8 +1,8 @@
-def discount(product_price, discount) -> int:
+def descuento(precio_producto, descuento) -> int:
 
-    discount_decimal = discount / 100
-    price_discount = product_price * discount_decimal
+    descuento_decimal = descuento / 100
+    percio_descuento = precio_producto * descuento_decimal
 
-    result = product_price - price_discount
+    resultado = precio_producto - percio_descuento
 
-    return result
+    return resultado

@@ -2,11 +2,14 @@ from rest_framework.response import Response
 from rest_framework import status, generics
 from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.authtoken.models import Token
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.authentication import TokenAuthentication
 from django.contrib.auth import authenticate, login, logout
+from django.contrib.sessions.models import Session
 from apps.ventas.models import Carrito
 from .serializer import UsuarioSerializer
 from rest_framework.parsers import JSONParser
+from datetime import datetime
 
 class RegisterUserView(generics.CreateAPIView):
 
@@ -91,3 +94,44 @@ class LoginView(ObtainAuthToken):
             return Response({"message": "Credenciales Invalidas"}, status.HTTP_401_UNAUTHORIZED)
 
         return Response(serializer.errors, status.HTTP_400_BAD_REQUEST)
+
+class LogoutView(generics.RetrieveAPIView):
+
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [TokenAuthentication]
+
+    def get(self, request):
+        try:
+
+            tokenUrl = request.GET.get("token")
+            token = Token.objects.filter(key=tokenUrl).first()
+
+            if token: 
+                usuario = token.user
+                sesiones_todas = Session.objects.filter(expire_date__gte = datetime.now())
+
+                if sesiones_todas.exists():
+
+                    for session in sesiones_todas:
+                        session_data = session.get_decoded()
+
+                        if usuario.id == int(session_data.get("_auth_user_id")):
+                            session.delete()
+
+                token.delete()
+                logout(request=request)
+
+                mensaje_session = "Session de usuario terminada"
+                mensaje_token = "Token Eliminado"
+
+                message = {
+                    "sesion_message": mensaje_session,
+                    "token_message": mensaje_token
+                }
+
+                return Response(message, status.HTTP_200_OK)
+
+            return Response({"error": "Usuario no encontrado con esas credenciales"},
+                            status.HTTP_400_BAD_REQUEST)
+        except:
+            return Response({"errors": "El token no se a encontrado en la cabecera"}, status.HTTP_409_CONFLICT)

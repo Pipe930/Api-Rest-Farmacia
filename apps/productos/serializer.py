@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from .models import Producto, Categoria, Oferta, DetalleBodega, Bodega
-from .descuento import discount
+from .descuento import descuento
 
 class ProductoSerializer(serializers.ModelSerializer):
 
@@ -28,10 +28,7 @@ class ProductoSerializer(serializers.ModelSerializer):
 
         if producto.id_oferta is not None:
 
-            precio_final = discount(producto.precio, producto.id_oferta.descuento)
-
-            producto.precio = precio_final
-            producto.save()
+            precio_final = descuento(producto.precio, producto.id_oferta.descuento)
 
             return precio_final
 

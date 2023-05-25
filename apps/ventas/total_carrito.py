@@ -5,6 +5,7 @@ def carrito_total(id_carrito):
     carrito = Carrito.objects.get(id_carrito=int(id_carrito.id_carrito))
 
     items = carrito.items.all()
+
     total = sum([item.cantidad * item.producto.precio for item in items])
 
     carrito.total = total
@@ -26,7 +27,9 @@ def calcular_precio_total(items) -> int:
 
             precio = precio_producto - precio_descuento
 
-        precio = item.producto.precio
+        else:
+
+            precio = item.producto.precio
 
         precio_total += item.cantidad * precio
 
