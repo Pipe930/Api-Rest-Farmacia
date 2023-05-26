@@ -1,22 +1,22 @@
 from rest_framework import serializers
-from .models import Orden, Compra, Carrito, Items
+from .models import PedidoCliente, Compra, Carrito, Items
 from apps.productos.models import Producto
 from django.http import Http404
 from apps.productos.descuento import descuento
 from .total_carrito import calcular_precio_total, carrito_total, calcular_total_productos, calcular_total_cantidad 
 from .descontar_stock import DescuentoStock
 
-class OrdenSerializer(serializers.ModelSerializer):
+class PedidoClienteSerializer(serializers.ModelSerializer):
 
     class Meta:
-        model = Orden
+        model = PedidoCliente
         fields = "__all__"
 
     def create(self, validated_data):
 
-        orden = Orden.objects.create(**validated_data)
+        pedido_cliente = PedidoCliente.objects.create(**validated_data)
 
-        return orden
+        return pedido_cliente
 
 class CompraSerializer(serializers.ModelSerializer):
 

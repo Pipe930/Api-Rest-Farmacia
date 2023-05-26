@@ -16,10 +16,19 @@ class RegionSerializer(serializers.ModelSerializer):
     
 class ProvinciaSerializer(serializers.ModelSerializer):
 
+    id_region = serializers.StringRelatedField()
+
     class Meta:
 
         model = Provincia
         fields = "__all__"
+    
+class CrearProvinciaSerializer(serializers.ModelSerializer):
+
+    class Meta:
+
+        model = Provincia
+        fields = ["nombre", "id_region"]
 
     def create(self, validated_data):
 
@@ -29,10 +38,19 @@ class ProvinciaSerializer(serializers.ModelSerializer):
     
 class ComunaSerializer(serializers.ModelSerializer):
 
+    id_provincia = serializers.StringRelatedField()
+
     class Meta:
 
         model = Comuna
         fields = "__all__"
+    
+class CrearComunaSerializer(serializers.ModelSerializer):
+
+    class Meta:
+
+        model = Comuna
+        fields = ["nombre", "id_provincia"]
 
     def create(self, validated_data):
 

@@ -44,6 +44,7 @@ class Compra(models.Model):
     precio_total = models.PositiveIntegerField()
     estado = models.BooleanField(default=True)
     productos = models.JSONField()
+    cantidad_productos = models.PositiveSmallIntegerField()
     id_usuario = models.ForeignKey(Usuario, on_delete=models.CASCADE)
     id_carrito = models.ForeignKey(Carrito, on_delete=models.CASCADE)
 
@@ -68,9 +69,9 @@ CHOICES_CONDITION = [
     ("entregado", "entregado")
 ]
 
-class Orden(models.Model):
+class PedidoCliente(models.Model):
 
-    id_orden = models.BigAutoField(primary_key=True)
+    id_pedido = models.BigAutoField(primary_key=True)
     codigo = models.UUIDField(default=uuid4, unique=True)
     creado = models.DateTimeField(auto_now_add=True)
     condicion = models.CharField(max_length=20, choices=CHOICES_CONDITION, default="en preparacion")
@@ -83,9 +84,9 @@ class Orden(models.Model):
 
     class Meta:
 
-        db_table = 'orden'
-        verbose_name = 'orden'
-        verbose_name_plural = 'ordenes'
+        db_table = 'pedido_cliente'
+        verbose_name = 'pedido_cliente'
+        verbose_name_plural = 'pedidos_clientes'
 
     def __str__(self) -> str:
         return str(self.id_compra)

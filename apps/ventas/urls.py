@@ -15,8 +15,8 @@ urlsCompras = [
     path("<int:id>", views.DetalleCompraView.as_view()),
 ]
 
-urlsOrdenes = [
-    path("", views.ListarOrdenesView.as_view()),
-    path("pedido/<int:id>", views.DetalleOrdenView.as_view()),
-    path("crear", views.CrearOrdenView.as_view()),
+urlsPedidosCliente = [
+    path("", views.ListarPedidosClientesView.as_view()),
+    path("pedido/<int:id>", views.DetallePedidoClienteView.as_view()),
+    path("crear", views.CrearPedidoClienteView.as_view()),
 ]

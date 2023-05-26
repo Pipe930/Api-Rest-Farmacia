@@ -5,7 +5,7 @@ from django.urls import path, include
 from apps.productos.urls import urlsProductos, urlsCategorias, urlsOfertas, urlsBodegas
 from apps.sucursales.urls import urlsSucursales, urlsEmpleados, urlsCargos
 from apps.usuarios.urls import urlsUsuarios
-from apps.ventas.urls import urlsCompras, urlsCarritos, urlsOrdenes
+from apps.ventas.urls import urlsCompras, urlsCarritos, urlsPedidosCliente
 from apps.pais.urls import urlsComunas, urlsProvincias, urlsRegiones
 
 urlpatterns = [
@@ -21,7 +21,7 @@ urlpatterns = [
     path("usuario/", include(urlsUsuarios)),
     path("carrito/", include(urlsCarritos)),
     path("compras/", include(urlsCompras)),
-    path("pedidos/", include(urlsOrdenes)),
+    path("pedidos-cliente/", include(urlsPedidosCliente)),
     path("bodegas/", include(urlsBodegas)),
     path("cargos/", include(urlsCargos))
 ]

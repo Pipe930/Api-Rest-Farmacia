@@ -1,9 +1,9 @@
 from rest_framework import status, generics
 from rest_framework.response import Response
-from .models import Carrito, Items, Compra, Orden
+from .models import Carrito, Items, Compra, PedidoCliente
 from apps.productos.models import Producto
 from django.http import Http404
-from .serializer import CarritoSerializer, AgregarCarritoItemSerializer, CancelarCompraSerializer, CompraSerializer, OrdenSerializer, RestarCarritoItemSerializer
+from .serializer import CarritoSerializer, AgregarCarritoItemSerializer, CancelarCompraSerializer, CompraSerializer, PedidoClienteSerializer, RestarCarritoItemSerializer
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.parsers import JSONParser
@@ -233,10 +233,10 @@ class DetalleCompraView(generics.RetrieveAPIView):
         return Response(serializer.data, status.HTTP_200_OK)
     
 
-class ListarOrdenesView(generics.ListAPIView):
+class ListarPedidosClientesView(generics.ListAPIView):
 
-    queryset = Orden.objects.all()
-    serializer_class = OrdenSerializer
+    queryset = PedidoCliente.objects.all()
+    serializer_class = PedidoClienteSerializer
     # permission_classes = [IsAuthenticated]
     # authentication_classes = [TokenAuthentication]
 
@@ -251,31 +251,31 @@ class ListarOrdenesView(generics.ListAPIView):
 
         return Response({"message": "No hay pedidos registrados"}, status.HTTP_204_NO_CONTENT)
 
-class DetalleOrdenView(generics.RetrieveAPIView):
+class DetallePedidoClienteView(generics.RetrieveAPIView):
 
-    serializer_class = OrdenSerializer
+    serializer_class = PedidoClienteSerializer
     permission_classes = [IsAuthenticated]
     authentication_classes = [TokenAuthentication]
 
     def get_object(self, id:int):
 
         try:
-            orden = Orden.objects.get(id_orden=id)
-        except Orden.DoesNotExist:
+            pedido_cliente = PedidoCliente.objects.get(id_orden=id)
+        except PedidoCliente.DoesNotExist:
             raise Http404
 
-        return orden
+        return pedido_cliente
 
     def get(self, request, id:int, format=None):
 
-        orden = self.get_object(id)
-        serializer = self.get_serializer(orden)
+        pedido_cliente = self.get_object(id)
+        serializer = self.get_serializer(pedido_cliente)
 
         return Response(serializer.data, status.HTTP_200_OK)
 
-class CrearOrdenView(generics.CreateAPIView):
+class CrearPedidoClienteView(generics.CreateAPIView):
 
-    serializer_class = OrdenSerializer
+    serializer_class = PedidoClienteSerializer
     permission_classes = [IsAuthenticated]
     authentication_classes = [TokenAuthentication]
     parser_classes = [JSONParser]
