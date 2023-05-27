@@ -1,7 +1,9 @@
 from django.db import models
 
+# Modelo Region
 class Region(models.Model):
 
+    # Atributos
     id_region = models.BigAutoField(primary_key=True)
     nombre = models.CharField(max_length=60, unique=True)
     sigla = models.CharField(max_length=8, blank=True, null=True)
@@ -15,6 +17,7 @@ class Region(models.Model):
     def __str__(self) -> str:
         return self.nombre
 
+# Modelo Provincia
 class Provincia(models.Model):
 
     id_provincia = models.BigAutoField(primary_key=True)
@@ -30,6 +33,7 @@ class Provincia(models.Model):
     def __str__(self) -> str:
         return self.nombre
 
+# Modelo Comuna
 class Comuna(models.Model):
 
     id_comuna = models.BigAutoField(primary_key=True)
