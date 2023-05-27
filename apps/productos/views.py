@@ -2,18 +2,18 @@ from rest_framework.response import Response
 from rest_framework import generics, status, filters
 from django.http import Http404
 from .models import Producto, Categoria, Oferta, Bodega
-from .serializer import OfertaSerializer, ProductoSerializer, CategoriaSerializer, BodegaSerialzer, CrearProductoSerializer
-from rest_framework.pagination import LimitOffsetPagination
+from .serializer import OfertaSerializer, ProductoSerializer, CategoriaSerializer, BodegaSerialzer, CrearProductoSerializer, ActualizarProductoStockSerializer
+from rest_framework.pagination import PageNumberPagination
 from rest_framework.parsers import JSONParser
 from rest_framework.permissions import AllowAny
 
-class ListarProductosView(generics.ListCreateAPIView):
+class ListarProductosView(generics.ListAPIView):
 
     serializer_class = ProductoSerializer
     permission_classes = [AllowAny]
     parser_classes = [JSONParser]
-    pagination_class = LimitOffsetPagination
-    queryset = Producto.objects.filter(disponible=True).order_by("nombre")
+    pagination_class = PageNumberPagination
+    queryset = Producto.objects.filter(disponible=True, id_oferta__isnull= True).order_by("nombre")
 
     def get(self, request, format=None):
 
@@ -21,21 +21,100 @@ class ListarProductosView(generics.ListCreateAPIView):
         page = self.paginate_queryset(queryset)
         serializer = self.serializer_class(page, many=True)
 
+        if not len(serializer.data):
+            return Response(
+                {
+                    "status": "No Content", 
+                    "message": "No tenemos productos registrados"
+                    }, status.HTTP_204_NO_CONTENT)
+
         return self.get_paginated_response(serializer.data)
     
+class ListarProductoFilterCategoriaView(generics.ListAPIView):
+
+    serializer_class = ProductoSerializer
+    permission_classes = [AllowAny]
+    parser_classes = [JSONParser]
+    pagination_class = PageNumberPagination
+
+    def get(self, request, id:int, format=None):
+
+        queryset = Producto.objects.filter(
+            disponible=True, 
+            id_oferta__isnull= True, 
+            id_categoria=id).order_by("nombre")
+        page = self.paginate_queryset(queryset)
+        serializer = self.serializer_class(page, many=True)
+
+        if not len(serializer.data):
+            return Response(
+                {
+                    "status": "No Content", 
+                    "message": "No tenemos productos con esa categoria"
+                    }, status.HTTP_204_NO_CONTENT)
+
+        return self.get_paginated_response(serializer.data)
+    
+class ListarProductosOfertaView(generics.ListAPIView):
+
+    serializer_class = ProductoSerializer
+    permission_classes = [AllowAny]
+    parser_classes = [JSONParser]
+    pagination_class = PageNumberPagination
+
+    def get(self, request, format=None):
+
+        queryset = Producto.objects.filter(
+            disponible=True, 
+            id_oferta__isnull= False).order_by("nombre")
+        page = self.paginate_queryset(queryset)
+        serializer = self.serializer_class(page, many=True)
+
+        if not len(serializer.data):
+            return Response(
+                {
+                    "status": "No Content", 
+                    "message": "No tenemos productos en oferta"
+                    }, status.HTTP_204_NO_CONTENT)
+
+        return self.get_paginated_response(serializer.data)
+
+class BuscarProductoView(generics.ListAPIView):
+
+    queryset = Producto.objects.filter(disponible=True).order_by("nombre")
+    serializer_class = ProductoSerializer
+    pagination_class = PageNumberPagination
+    filter_backends = [filters.SearchFilter]
+    search_fields = ["nombre"]
+    permission_classes = [AllowAny]
+
+class CrearProductoView(generics.CreateAPIView):
+
+    serializer_class = CrearProductoSerializer
+    permission_classes = [AllowAny]
+    parser_classes = [JSONParser]
+
     def post(self, request, format=None):
 
-        serializer = CrearProductoSerializer(data=request.data)
+        serializer = self.get_serializer(data=request.data)
 
-        if serializer.is_valid():
+        if not serializer.is_valid():
+            return Response(
+                {
+                    "status": "Bad Request", 
+                    "errors": serializer.errors
+                    }, status.HTTP_400_BAD_REQUEST)
 
-            serializer.save()
+        serializer.save()
 
-            return Response({"data": serializer.data, "message": "Se creo el producto con exito"}, status.HTTP_201_CREATED)
-        
-        return Response(serializer.errors, status.HTTP_400_BAD_REQUEST)
+        return Response(
+            {
+                "data": serializer.data, 
+                "status": "Created", 
+                "message": "Se creo el producto con exito"
+                }, status.HTTP_201_CREATED)
 
-class DetalleProductoView(generics.RetrieveUpdateDestroyAPIView):
+class DetalleProductoView(generics.RetrieveAPIView):
 
     serializer_class = ProductoSerializer
     permission_classes = [AllowAny]
@@ -45,45 +124,69 @@ class DetalleProductoView(generics.RetrieveUpdateDestroyAPIView):
         try:
             producto = Producto.objects.get(id_producto = id)
         except Producto.DoesNotExist:
-            raise Http404
+            return None
 
         return producto
     
     def get(self, request, id:int, format=None):
 
         producto = self.get_object(id)
+
+        if producto is None:
+
+            return Response(
+                {
+                    "status": "Not Found", 
+                    "message": "Producto no Encontrado"
+                    }, status=status.HTTP_404_NOT_FOUND)
+
         serializer = self.get_serializer(producto)
 
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response({"status": "OK", "producto":serializer.data}, status=status.HTTP_200_OK)
     
-    def put(self, request, id:int, fromat=None):
+class ActualizarStockProductoView(generics.UpdateAPIView):
+
+    serializer_class = ActualizarProductoStockSerializer
+    permission_classes = [AllowAny]
+    parser_classes = [JSONParser]
+
+    def get_object(self, id:int):
+
+        try:
+            producto = Producto.objects.get(id_producto = id)
+        except Producto.DoesNotExist:
+            return None
+
+        return producto
+
+    def put(self, request, id:int):
 
         producto = self.get_object(id)
+
+        if producto is None:
+            return Response(
+                {
+                    "status": "Not Found", 
+                    "message": "Producto no Encontrado"
+                    }, status=status.HTTP_404_NOT_FOUND)
+        
         serializer = self.get_serializer(producto, data=request.data)
 
         if not serializer.is_valid():
-
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {
+                    "status": "Bad Request", 
+                    "errors": serializer.errors
+                    }, status.HTTP_400_BAD_REQUEST)
         
         serializer.save()
-        return Response({"data":serializer.data, "message": "producto actualizado con exito"}, status=status.HTTP_200_OK)
 
-    
-    def delete(self, request, id:int, format=None):
-
-        producto = self.get_object(id)
-        producto.delete()
-
-        return Response({"message": "El producto a sido eliminada con exito"}, status=status.HTTP_204_NO_CONTENT)
-    
-class BuscarProductoView(generics.ListAPIView):
-
-    queryset = Producto.objects.filter(disponible=True).order_by("nombre")
-    serializer_class = ProductoSerializer
-    filter_backends = [filters.SearchFilter]
-    search_fields = ["nombre"]
-    permission_classes = [AllowAny]
-
+        return Response(
+            {
+                "producto":serializer.data, 
+                "status": "OK", 
+                "message": "Stock del Producto Actualizado"
+                }, status=status.HTTP_200_OK)
     
 class ListarCategoriasView(generics.ListCreateAPIView):
 
@@ -97,19 +200,35 @@ class ListarCategoriasView(generics.ListCreateAPIView):
         queryset = self.get_queryset()
         serializer = self.serializer_class(queryset, many=True)
 
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        if not len(serializer.data):
+            return Response(
+                {
+                    "status": "No Content", 
+                    "message": "No tenemos categorias registradas"
+                    }, status.HTTP_204_NO_CONTENT)
+
+        return Response({"status": "OK", "categorias":serializer.data}, status=status.HTTP_200_OK)
     
     def post(self, request, format=None):
 
         serializer = self.get_serializer(data=request.data)
 
-        if serializer.is_valid():
+        if not serializer.is_valid():
+            return Response(
+                {
+                    "status": "Bad Request", 
+                    "errors": serializer.errors
+                    }, status.HTTP_400_BAD_REQUEST)
 
-            serializer.save()
+        serializer.save()
 
-            return Response({"data": serializer.data, "message": "Se creo la categoria con exito"}, status.HTTP_201_CREATED)
+        return Response(
+            {
+                "data": serializer.data, 
+                "message": "Se creo la categoria con exito",
+                "status": "Created"
+                }, status.HTTP_201_CREATED)
         
-        return Response(serializer.errors, status.HTTP_400_BAD_REQUEST)
 
 class DetalleCategoriaView(generics.RetrieveUpdateDestroyAPIView):
 
@@ -121,36 +240,25 @@ class DetalleCategoriaView(generics.RetrieveUpdateDestroyAPIView):
         try:
             categoria = Categoria.objects.get(id_categoria = id)
         except Producto.DoesNotExist:
-            raise Http404
+            raise None
 
         return categoria
     
     def get(self, request, id:int, format=None):
 
         categoria = self.get_object(id)
+
+        if categoria is None:
+
+            return Response(
+                {
+                    "status": "Not Found", 
+                    "message": "Categoria no Encontrada"
+                    }, status=status.HTTP_404_NOT_FOUND)
+        
         serializer = self.get_serializer(categoria)
 
-        return Response(serializer.data, status=status.HTTP_200_OK)
-    
-    def put(self, request, id:int, fromat=None):
-
-        categoria = self.get_object(id)
-        serializer = self.get_serializer(categoria, data=request.data)
-
-        if not serializer.is_valid():
-
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        
-        serializer.save()
-        return Response({"data":serializer.data, "message": "categoria actualizado con exito"}, status=status.HTTP_200_OK)
-
-    
-    def delete(self, request, id:int, format=None):
-
-        categoria = self.get_object(id)
-        categoria.delete()
-
-        return Response({"message": "La categoria a sido eliminada con exito"}, status=status.HTTP_204_NO_CONTENT)
+        return Response({"status": "OK", "Categoria":serializer.data}, status=status.HTTP_200_OK)
     
 class ListarOfertasView(generics.ListCreateAPIView):
 
@@ -164,19 +272,34 @@ class ListarOfertasView(generics.ListCreateAPIView):
         queryset = self.get_queryset()
         serializer = self.serializer_class(queryset, many=True)
 
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        if not len(serializer.data):
+            return Response(
+                {
+                    "status": "No Content", 
+                    "message": "No tenemos ofertas registradas"
+                    }, status.HTTP_204_NO_CONTENT)
+
+        return Response({"status": "OK", "Ofertas":serializer.data}, status=status.HTTP_200_OK)
     
     def post(self, request, format=None):
 
         serializer = self.get_serializer(data=request.data)
 
-        if serializer.is_valid():
+        if not serializer.is_valid():
+            return Response(
+                {
+                    "status": "Bad Request", 
+                    "errors": serializer.errors
+                    }, status.HTTP_400_BAD_REQUEST)
 
-            serializer.save()
+        serializer.save()
 
-            return Response({"data": serializer.data, "message": "Se creo la oferta con exito"}, status.HTTP_201_CREATED)
-        
-        return Response(serializer.errors, status.HTTP_400_BAD_REQUEST)
+        return Response(
+            {
+                "data": serializer.data, 
+                "status": "Created", 
+                "message": "Se creo la oferta con exito"
+                }, status.HTTP_201_CREATED)
     
 class DetalleOfertaView(generics.RetrieveUpdateDestroyAPIView):
 
@@ -188,36 +311,25 @@ class DetalleOfertaView(generics.RetrieveUpdateDestroyAPIView):
         try:
             oferta = Oferta.objects.get(id_oferta = id)
         except Producto.DoesNotExist:
-            raise Http404
+            raise None
 
         return oferta
     
     def get(self, request, id:int, format=None):
 
         oferta = self.get_object(id)
+
+        if oferta is None:
+
+            return Response(
+                {
+                    "status": "Not Found", 
+                    "message": "Oferta no Encontrado"
+                    }, status=status.HTTP_404_NOT_FOUND)
+
         serializer = self.get_serializer(oferta)
 
-        return Response(serializer.data, status=status.HTTP_200_OK)
-    
-    def put(self, request, id:int, fromat=None):
-
-        oferta = self.get_object(id)
-        serializer = self.get_serializer(oferta, data=request.data)
-
-        if not serializer.is_valid():
-
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        
-        serializer.save()
-        return Response({"data":serializer.data, "message": "La oferta se actualizado con exito"}, status=status.HTTP_200_OK)
-
-    
-    def delete(self, request, id:int, format=None):
-
-        oferta = self.get_object(id)
-        oferta.delete()
-
-        return Response({"message": "La oferta a sido eliminada con exito"}, status=status.HTTP_204_NO_CONTENT)
+        return Response({"status": "OK", "Oferta":serializer.data}, status=status.HTTP_200_OK)
     
 
 class ListarBodegasView(generics.ListCreateAPIView):
@@ -232,19 +344,29 @@ class ListarBodegasView(generics.ListCreateAPIView):
         queryset = self.get_queryset()
         serializer = self.serializer_class(queryset, many=True)
 
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        if not len(serializer.data):
+            return Response(
+                {
+                    "status": "No Content", 
+                    "message": "No tenemos bodegas registradas"
+                    }, status.HTTP_204_NO_CONTENT)
+
+        return Response({"status":"OK", "Bodegas":serializer.data}, status=status.HTTP_200_OK)
     
     def post(self, request, format=None):
 
         serializer = self.get_serializer(data=request.data)
 
-        if serializer.is_valid():
+        if not serializer.is_valid():
+            return Response(
+                {
+                    "status": "Bad Request", 
+                    "errors": serializer.errors
+                    }, status.HTTP_400_BAD_REQUEST)
 
-            serializer.save()
+        serializer.save()
 
-            return Response({"data": serializer.data, "message": "Se creo la bodega con exito"}, status.HTTP_201_CREATED)
-        
-        return Response(serializer.errors, status.HTTP_400_BAD_REQUEST)
+        return Response({"data": serializer.data, "status":"Created","message": "Se creo la bodega con exito"}, status.HTTP_201_CREATED)
     
 class DetalleBodegaView(generics.RetrieveUpdateDestroyAPIView):
 
@@ -256,33 +378,22 @@ class DetalleBodegaView(generics.RetrieveUpdateDestroyAPIView):
         try:
             bodega = Bodega.objects.get(id_bodega = id)
         except Bodega.DoesNotExist:
-            raise Http404
+            raise None
 
         return bodega
     
     def get(self, request, id:int, format=None):
 
         bodega = self.get_object(id)
+
+        if bodega is None:
+
+            return Response(
+                {
+                    "status": "Not Found", 
+                    "message": "Categoria no Encontrada"
+                    }, status=status.HTTP_404_NOT_FOUND)
+    
         serializer = self.get_serializer(bodega)
 
-        return Response(serializer.data, status=status.HTTP_200_OK)
-    
-    def put(self, request, id:int, fromat=None):
-
-        bodega = self.get_object(id)
-        serializer = self.get_serializer(bodega, data=request.data)
-
-        if not serializer.is_valid():
-
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        
-        serializer.save()
-        return Response({"data":serializer.data, "message": "La bodega se actualizado con exito"}, status=status.HTTP_200_OK)
-
-    
-    def delete(self, request, id:int, format=None):
-
-        bodega = self.get_object(id)
-        bodega.delete()
-
-        return Response({"message": "La bodega a sido eliminada con exito"}, status=status.HTTP_204_NO_CONTENT)
+        return Response({"status": "OK", "Categoria":serializer.data}, status=status.HTTP_200_OK)

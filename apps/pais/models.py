@@ -3,7 +3,7 @@ from django.db import models
 class Region(models.Model):
 
     id_region = models.BigAutoField(primary_key=True)
-    nombre = models.CharField(max_length=60)
+    nombre = models.CharField(max_length=60, unique=True)
     sigla = models.CharField(max_length=8, blank=True, null=True)
 
     class Meta:
@@ -18,7 +18,7 @@ class Region(models.Model):
 class Provincia(models.Model):
 
     id_provincia = models.BigAutoField(primary_key=True)
-    nombre = models.CharField(max_length=40)
+    nombre = models.CharField(max_length=40, unique=True)
     id_region = models.ForeignKey(Region, on_delete=models.CASCADE)
 
     class Meta:
@@ -33,7 +33,7 @@ class Provincia(models.Model):
 class Comuna(models.Model):
 
     id_comuna = models.BigAutoField(primary_key=True)
-    nombre = models.CharField(max_length=40)
+    nombre = models.CharField(max_length=40, unique=True)
     id_provincia = models.ForeignKey(Provincia, on_delete=models.CASCADE)
 
     class Meta:

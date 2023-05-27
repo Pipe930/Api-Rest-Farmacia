@@ -1,9 +1,12 @@
 from django.db import models
+from datetime import date
+from django.db.models.signals import pre_save
 
 class Oferta(models.Model):
 
     id_oferta = models.BigAutoField(primary_key=True)
     nombre = models.CharField(max_length=255)
+    estado = models.BooleanField(default=True)
     fecha_inicio = models.DateField(auto_now_add=True)
     fecha_termino = models.DateField()
     descuento = models.PositiveSmallIntegerField()
@@ -17,10 +20,20 @@ class Oferta(models.Model):
         verbose_name = "oferta"
         verbose_name_plural = "ofertas"
 
+def set_estado(sender, instance, *arg, **kwargs):
+
+    if instance.fecha_termino <= date.today():
+
+        instance.estado = False
+
+    return
+
+pre_save.connect(set_estado, sender=Oferta)
+
 class Categoria(models.Model):
 
     id_categoria = models.BigAutoField(primary_key=True)
-    nombre = models.CharField(max_length=255)
+    nombre = models.CharField(max_length=255, unique=True)
 
     def __str__(self) -> str:
         return self.nombre
@@ -36,7 +49,7 @@ class Producto(models.Model):
     id_producto = models.BigAutoField(primary_key=True)
     nombre = models.CharField(max_length=255, unique=True)
     precio = models.PositiveIntegerField()
-    stock = models.PositiveIntegerField()
+    stock = models.PositiveIntegerField(default=0)
     disponible = models.BooleanField(default=True)
     creado = models.DateTimeField(auto_now_add=True)
     descripcion = models.TextField(default="(Sin Descripcion)", blank=True, null=True)
@@ -56,10 +69,11 @@ class Producto(models.Model):
 class Bodega(models.Model):
 
     id_bodega = models.BigAutoField(primary_key=True)
-    nombre = models.CharField(max_length=255)
+    nombre = models.CharField(max_length=255, unique=True)
     direccion = models.CharField(max_length=255)
     temperatura = models.PositiveSmallIntegerField()
     capacidad = models.PositiveIntegerField()
+    capacidad_ocupada = models.PositiveIntegerField(default=0)
 
     def __str__(self) -> str:
         return self.nombre
