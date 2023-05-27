@@ -45,11 +45,8 @@ echo. > "%init_ventas%"
 set "archivoenv=.\farmacia\.env"
 
 @REM Ingresar informacion para las variables de entorno
-@REM set /p "name_database=Ingrese el nombre de la base de datos: "
-@REM set /p "password_database=Ingrese la contrsena de la base de datos: "
-
-set "name_database=name"
-set "password_database=password"
+set /p "name_database=Ingrese el nombre de la base de datos: "
+set /p "password_database=Ingrese la contrsena de la base de datos: "
 
 echo NAME_DATABASE='%name_database%'> "%archivoenv%"
 echo USER_DATABASE=root>> "%archivoenv%"

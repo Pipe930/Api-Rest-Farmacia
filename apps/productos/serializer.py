@@ -100,29 +100,30 @@ class CrearStockBodegaSerializer(serializers.ModelSerializer):
         id_producto = self.validated_data["id_producto"]
 
         bodega = Bodega.objects.get(id_bodega=id_bodega)
-
-        if bodega is None:
-
-            raise serializers.ValidationError({"message": "Bodega no Existe"}, status.HTTP_404_NOT_FOUND)
         
         try:
-            producto = DetalleBodega.objects.get(id_producto=id_producto)
+            producto = DetalleBodega.objects.get(id_producto=id_producto, id_bodega=id_bodega)
 
             sumar_stock = producto.stock + stock
 
             producto.stock = sumar_stock
 
-            producto.save()
-
             stock_bodega = bodega.capacidad_ocupada
 
             nuevo_stock = stock + stock_bodega
 
-            bodega.capacidad_ocupada = nuevo_stock
+            if bodega.capacidad > nuevo_stock:
 
-            bodega.save()
+                bodega.capacidad_ocupada = nuevo_stock
 
-            self.instance = producto
+                bodega.save()
+                producto.save()
+
+                self.instance = producto
+
+                return self.instance
+
+            raise serializers.ValidationError({"status": "Conflict", "message": "La capacidad ocupa de la bodega supera a la capacidad maxima de la bodega"}, status.HTTP_409_CONFLICT)
         
         except DetalleBodega.DoesNotExist:
 
@@ -130,13 +131,17 @@ class CrearStockBodegaSerializer(serializers.ModelSerializer):
 
             nuevo_stock = stock + stock_bodega
 
-            bodega.capacidad_ocupada = nuevo_stock
+            if bodega.capacidad > nuevo_stock:
 
-            bodega.save()
+                bodega.capacidad_ocupada = nuevo_stock
 
-            self.instance = DetalleBodega.objects.create(**self.validated_data)
+                bodega.save()
 
-        return self.instance
+                self.instance = DetalleBodega.objects.create(**self.validated_data)
+
+                return self.instance
+            
+            raise serializers.ValidationError({"status": "Conflict", "message": "La capacidad ocupa de la bodega supera a la capacidad maxima de la bodega"}, status.HTTP_409_CONFLICT)
 
     
 class BodegaSerialzer(serializers.ModelSerializer):

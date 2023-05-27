@@ -426,6 +426,12 @@ class ListarStockProductosFilterBodegaView(generics.ListAPIView):
     serializer_class = StockBodegaSerializer
     permission_classes = [AllowAny]
 
+    def get_object(self, id:int):
+
+        bodega = Bodega.objects.get(id_bodega = id)
+
+        return bodega
+
     def get(self, request, id:int, format=None):
 
         queryset = DetalleBodega.objects.filter(id_bodega=id)
@@ -437,5 +443,33 @@ class ListarStockProductosFilterBodegaView(generics.ListAPIView):
                     "status": "No Content", 
                     "message": "No tenemos productos con esa bodega"
                     }, status.HTTP_204_NO_CONTENT)
+        
+        bodega = self.get_object(id)
 
-        return Response({"status": "OK", "Bodegas":serializer.data}, status=status.HTTP_200_OK)
+        return Response(
+            {
+                "status": "OK", 
+                "Bodega": bodega.nombre,
+                "Capacidad": bodega.capacidad,
+                "Capacidad Ocupada": bodega.capacidad_ocupada,
+                "Productos":serializer.data
+                }, status=status.HTTP_200_OK)
+    
+class ListarStockProductosFilterProductoView(generics.ListAPIView):
+
+    serializer_class = StockBodegaSerializer
+    permission_classes = [AllowAny]
+
+    def get(self, request, id:int, format=None):
+
+        queryset = DetalleBodega.objects.filter(id_producto=id)
+        serializer = self.serializer_class(queryset, many=True)
+
+        if not len(serializer.data):
+            return Response(
+                {
+                    "status": "No Content", 
+                    "message": "No tenemos ese producto en ninguna bodega"
+                    }, status.HTTP_204_NO_CONTENT)
+
+        return Response({"status": "OK", "Productos":serializer.data}, status=status.HTTP_200_OK)
