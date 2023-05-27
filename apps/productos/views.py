@@ -1,11 +1,11 @@
 from rest_framework.response import Response
 from rest_framework import generics, status, filters
-from django.http import Http404
-from .models import Producto, Categoria, Oferta, Bodega
-from .serializer import OfertaSerializer, ProductoSerializer, CategoriaSerializer, BodegaSerialzer, CrearProductoSerializer, ActualizarProductoStockSerializer
+from .models import Producto, Categoria, Oferta, Bodega, DetalleBodega
+from .serializer import OfertaSerializer,ProductoSerializer, CategoriaSerializer, BodegaSerialzer, CrearProductoSerializer, ActualizarProductoStockSerializer, StockBodegaSerializer, CrearStockBodegaSerializer
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.parsers import JSONParser
 from rest_framework.permissions import AllowAny
+from datetime import date
 
 class ListarProductosView(generics.ListAPIView):
 
@@ -240,7 +240,7 @@ class DetalleCategoriaView(generics.RetrieveUpdateDestroyAPIView):
         try:
             categoria = Categoria.objects.get(id_categoria = id)
         except Producto.DoesNotExist:
-            raise None
+            return None
 
         return categoria
     
@@ -311,7 +311,7 @@ class DetalleOfertaView(generics.RetrieveUpdateDestroyAPIView):
         try:
             oferta = Oferta.objects.get(id_oferta = id)
         except Producto.DoesNotExist:
-            raise None
+            return None
 
         return oferta
     
@@ -368,7 +368,7 @@ class ListarBodegasView(generics.ListCreateAPIView):
 
         return Response({"data": serializer.data, "status":"Created","message": "Se creo la bodega con exito"}, status.HTTP_201_CREATED)
     
-class DetalleBodegaView(generics.RetrieveUpdateDestroyAPIView):
+class DetalleBodegaView(generics.RetrieveAPIView):
 
     serializer_class = BodegaSerialzer
     permission_classes = [AllowAny]
@@ -378,7 +378,7 @@ class DetalleBodegaView(generics.RetrieveUpdateDestroyAPIView):
         try:
             bodega = Bodega.objects.get(id_bodega = id)
         except Bodega.DoesNotExist:
-            raise None
+            return None
 
         return bodega
     
@@ -391,9 +391,51 @@ class DetalleBodegaView(generics.RetrieveUpdateDestroyAPIView):
             return Response(
                 {
                     "status": "Not Found", 
-                    "message": "Categoria no Encontrada"
+                    "message": "Bodega no Encontrada"
                     }, status=status.HTTP_404_NOT_FOUND)
     
         serializer = self.get_serializer(bodega)
 
-        return Response({"status": "OK", "Categoria":serializer.data}, status=status.HTTP_200_OK)
+        return Response({"status": "OK", "Bodega":serializer.data}, status=status.HTTP_200_OK)
+    
+
+class CrearProductosBodegaView(generics.ListAPIView):
+
+    serializer_class = CrearStockBodegaSerializer
+    parser_classes = [JSONParser]
+    
+    def post(self, request, format=None):
+
+        serializer = self.get_serializer(data=request.data)
+
+        if not serializer.is_valid():
+
+            return Response(
+                {
+                    "status": "Bad Request", 
+                    "errors": serializer.errors
+                    }, status.HTTP_400_BAD_REQUEST)
+
+        serializer.save()
+
+        return Response({"data": serializer.data, "status":"Created","message": "Se creo el detalle bodega con exito"}, status.HTTP_200_OK)
+
+
+class ListarStockProductosFilterBodegaView(generics.ListAPIView):
+
+    serializer_class = StockBodegaSerializer
+    permission_classes = [AllowAny]
+
+    def get(self, request, id:int, format=None):
+
+        queryset = DetalleBodega.objects.filter(id_bodega=id)
+        serializer = self.serializer_class(queryset, many=True)
+
+        if not len(serializer.data):
+            return Response(
+                {
+                    "status": "No Content", 
+                    "message": "No tenemos productos con esa bodega"
+                    }, status.HTTP_204_NO_CONTENT)
+
+        return Response({"status": "OK", "Bodegas":serializer.data}, status=status.HTTP_200_OK)

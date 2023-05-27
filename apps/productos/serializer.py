@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from .models import Producto, Categoria, Oferta, DetalleBodega, Bodega
 from .descuento import descuento
+from rest_framework import status
 
 class ProductoSerializer(serializers.ModelSerializer):
 
@@ -76,28 +77,67 @@ class OfertaSerializer(serializers.ModelSerializer):
 
         return oferta
     
-class DetalleBodegaSerializer(serializers.ModelSerializer):
+class StockBodegaSerializer(serializers.ModelSerializer):
+
+    id_producto = serializers.StringRelatedField()
+
+    class Meta:
+
+        model = DetalleBodega
+        fields = "__all__"
+    
+class CrearStockBodegaSerializer(serializers.ModelSerializer):
 
     class Meta:
 
         model = DetalleBodega
         fields = "__all__"
 
-    def create(self, validated_data):
+    def save(self, **kwargs):
 
-        detalle_bodega = DetalleBodega.objects.create(**validated_data)
+        id_bodega = self.data["id_bodega"]
+        stock = self.validated_data["stock"]
+        id_producto = self.validated_data["id_producto"]
 
-        return detalle_bodega
-    
-    def update(self, instance, validated_data):
+        bodega = Bodega.objects.get(id_bodega=id_bodega)
 
-        instance.stock = validated_data.get("stock", instance.stock)
-        instance.id_producto = validated_data.get("id_producto", instance.id_producto)
-        instance.id_bodega = validated_data.get("id_bodega", instance.id_bodega)
+        if bodega is None:
 
-        instance.save()
+            raise serializers.ValidationError({"message": "Bodega no Existe"}, status.HTTP_404_NOT_FOUND)
+        
+        try:
+            producto = DetalleBodega.objects.get(id_producto=id_producto)
 
-        return instance 
+            sumar_stock = producto.stock + stock
+
+            producto.stock = sumar_stock
+
+            producto.save()
+
+            stock_bodega = bodega.capacidad_ocupada
+
+            nuevo_stock = stock + stock_bodega
+
+            bodega.capacidad_ocupada = nuevo_stock
+
+            bodega.save()
+
+            self.instance = producto
+        
+        except DetalleBodega.DoesNotExist:
+
+            stock_bodega = bodega.capacidad_ocupada
+
+            nuevo_stock = stock + stock_bodega
+
+            bodega.capacidad_ocupada = nuevo_stock
+
+            bodega.save()
+
+            self.instance = DetalleBodega.objects.create(**self.validated_data)
+
+        return self.instance
+
     
 class BodegaSerialzer(serializers.ModelSerializer):
 

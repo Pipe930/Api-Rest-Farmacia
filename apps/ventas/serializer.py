@@ -145,8 +145,6 @@ class AgregarCarritoItemSerializer(serializers.ModelSerializer):
         producto = self.validated_data["producto"]
         cantidad = self.validated_data["cantidad"]
         id_carrito = self.validated_data["id_carrito"]
-        
-        print(producto.id_oferta)
 
         try:
 

@@ -1,6 +1,4 @@
 from django.db import models
-from datetime import date
-from django.db.models.signals import pre_save
 
 class Oferta(models.Model):
 
@@ -19,16 +17,6 @@ class Oferta(models.Model):
         db_table = "oferta"
         verbose_name = "oferta"
         verbose_name_plural = "ofertas"
-
-def set_estado(sender, instance, *arg, **kwargs):
-
-    if instance.fecha_termino <= date.today():
-
-        instance.estado = False
-
-    return
-
-pre_save.connect(set_estado, sender=Oferta)
 
 class Categoria(models.Model):
 

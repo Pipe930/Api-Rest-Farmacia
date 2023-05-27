@@ -12,6 +12,11 @@ urlsProductos = [
     path("producto", views.BuscarProductoView.as_view())
 ]
 
+urlsStockBodega = [
+    path("created", views.CrearProductosBodegaView.as_view()),
+    path("bodega/<int:id>", views.ListarStockProductosFilterBodegaView.as_view())
+]
+
 urlsCategorias = [
     path("", views.ListarCategoriasView.as_view()),
     path("categoria/<int:id>", views.DetalleCategoriaView.as_view())

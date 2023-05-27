@@ -2,7 +2,7 @@
 from django.contrib import admin
 from django.urls import path, include
 
-from apps.productos.urls import urlsProductos, urlsCategorias, urlsOfertas, urlsBodegas
+from apps.productos.urls import urlsProductos, urlsCategorias, urlsOfertas, urlsBodegas, urlsStockBodega
 from apps.sucursales.urls import urlsSucursales, urlsEmpleados, urlsCargos
 from apps.usuarios.urls import urlsUsuarios
 from apps.ventas.urls import urlsCompras, urlsCarritos, urlsPedidosCliente
@@ -23,5 +23,6 @@ urlpatterns = [
     path("compras/", include(urlsCompras)),
     path("pedidos-cliente/", include(urlsPedidosCliente)),
     path("bodegas/", include(urlsBodegas)),
-    path("cargos/", include(urlsCargos))
+    path("cargos/", include(urlsCargos)),
+    path("stock-bodegas/", include(urlsStockBodega))
 ]

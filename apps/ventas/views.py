@@ -54,13 +54,9 @@ class AgregarCarritoItemView(generics.CreateAPIView):
 
         if serializer.is_valid():
 
-            data = serializer.data
+            producto = self.get_object(serializer.data["producto"])
 
-            producto = self.get_object(data["producto"])
-
-            cantidad = data["cantidad"]
-
-            if producto.stock < cantidad:
+            if producto.stock < serializer.data["cantidad"]:
 
                 return Response({"message": "La cantidad supera el stock disponible"}, status.HTTP_400_BAD_REQUEST)
 
