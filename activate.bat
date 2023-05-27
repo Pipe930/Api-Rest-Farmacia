@@ -20,6 +20,7 @@ mkdir .\apps\productos\migrations
 mkdir .\apps\sucursales\migrations
 mkdir .\apps\usuarios\migrations
 mkdir .\apps\ventas\migrations
+mkdir .\apps\pedidos\migrations
 
 @REM Asignacion de las rutas de las carpetas
 set "pais=.\apps\pais\migrations"
@@ -27,12 +28,14 @@ set "productos=.\apps\productos\migrations"
 set "sucursales=.\apps\sucursales\migrations"
 set "usuarios=.\apps\usuarios\migrations"
 set "ventas=.\apps\ventas\migrations"
+set "pedidos=.\apps\pedidos\migrations"
 
 set "init_pais=%pais%\__init__.py"
 set "init_productos=%productos%\__init__.py"
 set "init_sucursales=%sucursales%\__init__.py"
 set "init_usuarios=%usuarios%\__init__.py"
 set "init_ventas=%ventas%\__init__.py"
+set "init_pedidos=%pedidos%\__init__.py"
 
 @REM Creacion de los archivos __init__.py dentro de las carpetas migrations
 echo. > "%init_pais%"
@@ -40,6 +43,7 @@ echo. > "%init_productos%"
 echo. > "%init_sucursales%"
 echo. > "%init_usuarios%"
 echo. > "%init_ventas%"
+echo. > "%init_pedidos%"
 
 @REM Creacion de las variavles de entorno
 set "archivoenv=.\farmacia\.env"

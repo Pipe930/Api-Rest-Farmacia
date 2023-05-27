@@ -38,7 +38,8 @@ LOCAL_APPS = [
     'apps.sucursales.apps.SucursalesConfig',
     'apps.usuarios.apps.UsuariosConfig',
     'apps.ventas.apps.VentasConfig',
-    'apps.pais.apps.PaisConfig'
+    'apps.pais.apps.PaisConfig',
+    'apps.pedidos.apps.PedidosConfig',
 ]
 
 THIRD_APPS = [
