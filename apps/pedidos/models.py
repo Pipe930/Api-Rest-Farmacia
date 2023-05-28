@@ -88,6 +88,7 @@ class Pedido(models.Model):
     id_pedido = models.BigAutoField(primary_key=True)
     fecha_emicion = models.DateField(auto_now_add=True)
     estado = models.CharField(max_length=40, choices=CHOICES_PEDIDO, default="En Preparacion")
+    destino = models.CharField(max_length=255)
     id_bodeguero = models.ForeignKey(Bodeguero, on_delete=models.CASCADE)
     id_proveedor = models.ForeignKey(Proveedor, on_delete=models.CASCADE)
 

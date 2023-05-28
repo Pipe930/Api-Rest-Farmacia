@@ -20,6 +20,7 @@ class Region(models.Model):
 # Modelo Provincia
 class Provincia(models.Model):
 
+    # Atributos
     id_provincia = models.BigAutoField(primary_key=True)
     nombre = models.CharField(max_length=40, unique=True)
     id_region = models.ForeignKey(Region, on_delete=models.CASCADE)
@@ -36,6 +37,7 @@ class Provincia(models.Model):
 # Modelo Comuna
 class Comuna(models.Model):
 
+    # Atributos
     id_comuna = models.BigAutoField(primary_key=True)
     nombre = models.CharField(max_length=40, unique=True)
     id_provincia = models.ForeignKey(Provincia, on_delete=models.CASCADE)
