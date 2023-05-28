@@ -5,9 +5,9 @@ from spyne.protocol.soap import Soap11
 from spyne.model.primitive import Unicode, Integer, String, DateTime, Boolean
 from spyne.application import Application
 from spyne.decorator import rpc
-from spyne.util.django import DjangoComplexModel
 from spyne import ComplexModel
 from spyne.model.complex import Iterable
+from spyne.model.fault import Fault
 from .models import Producto
 
 class ListarProductos(ComplexModel):
@@ -19,10 +19,8 @@ class ListarProductos(ComplexModel):
     disponible = Boolean
     creado = DateTime
     descripcion = String
-
-    class Attributes(DjangoComplexModel.Attributes):
-
-        django_model = Producto
+    id_oferta_id = Integer
+    id_categoria_id = Integer
 
 class ServicioSoapProducto(ServiceBase):
 
@@ -38,7 +36,7 @@ class ServicioSoapProducto(ServiceBase):
         registro.nombre = nombre
         registro.precio = precio
         registro.descripcion = descripcion
-        registro.id_categoria = id_categoria
+        registro.id_categoria_id = id_categoria
 
         registro.save()
 
@@ -53,24 +51,30 @@ class ServicioSoapProducto(ServiceBase):
         Unicode(nillable=False),
         _returns=Unicode)
     def actualizar_producto(ctx, id_producto, nombre, precio, stock, descripcion, id_oferta, id_categoria):
-
-        registro = Producto.objects.get(id_producto=id_producto)
+        
+        try:
+            registro = Producto.objects.get(id_producto=id_producto)
+        except Producto.DoesNotExist as e:
+            raise Fault(faultcode=str(e.args[0]), faultstring="Producto no existe")
 
         registro.nombre = nombre
         registro.precio = precio
         registro.stock = stock
         registro.descripcion = descripcion
-        registro.id_oferta = id_oferta
-        registro.id_categoria = id_categoria
+        registro.id_oferta_id = id_oferta
+        registro.id_categoria_id = id_categoria
 
         registro.save()
 
-        return "Producto Creado: " + nombre
+        return "Producto Actualizado: " + nombre
     
     @rpc(Unicode(nillable=False), _returns=ListarProductos)
     def obtener_producto(ctx, id_producto):
 
-        producto = Producto.objects.get(id_producto=id_producto)
+        try:
+            producto = Producto.objects.get(id_producto=id_producto)
+        except Producto.DoesNotExist as e:
+            raise Fault(faultcode=str(e.args[0]), faultstring="Producto no existe")
 
         return producto
     
@@ -83,12 +87,15 @@ class ServicioSoapProducto(ServiceBase):
     
     @rpc(Unicode(nillable=False),_returns=Unicode)
     def eliminar_producto(ctx, id_producto):
-
-        producto = Producto.objects.get(id_producto=id_producto)
+            
+        try:
+            producto = Producto.objects.get(id_producto=id_producto)
+        except Producto.DoesNotExist as e:
+            raise Fault(faultcode=str(e.args[0]), faultstring="Producto no existe")
 
         producto.delete()
 
-        return "Soap " + id_producto + "eliminado"
+        return "Soap " + id_producto + " eliminado"
     
 
 soap_app_producto = Application(
