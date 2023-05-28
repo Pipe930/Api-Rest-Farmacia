@@ -1,6 +1,7 @@
 from django.urls import path
 from rest_framework.urlpatterns import format_suffix_patterns
 from . import views
+from .soap_view import crud_producto
 
 urlsProductos = [
     path("", views.ListarProductosView.as_view()),
@@ -10,6 +11,10 @@ urlsProductos = [
     path("producto/<int:id>", views.DetalleProductoView.as_view()),
     path("update-stock/<int:id>", views.ActualizarStockProductoView.as_view()),
     path("producto", views.BuscarProductoView.as_view())
+]
+
+urlsSoapProductos = [
+    path("producto/", crud_producto)
 ]
 
 urlsStockBodega = [
