@@ -1,7 +1,7 @@
 from rest_framework.response import Response
 from rest_framework import generics, status, filters
 from .models import Producto, Categoria, Oferta, Bodega, DetalleBodega
-from .serializer import OfertaSerializer,ProductoSerializer, CategoriaSerializer, BodegaSerialzer, CrearProductoSerializer, ActualizarProductoStockSerializer, StockBodegaSerializer, CrearStockBodegaSerializer
+from .serializer import OfertaSerializer,ProductoSerializer, CategoriaSerializer, BodegaSerialzer, CrearProductoSerializer, ActualizarProductoStockSerializer, StockBodegaSerializer, CrearStockBodegaSerializer, ActualizarOfertaProductoSerializer
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.parsers import JSONParser
 from rest_framework.permissions import AllowAny
@@ -142,6 +142,7 @@ class DetalleProductoView(generics.RetrieveAPIView):
 
         serializer = self.get_serializer(producto)
 
+
         return Response({"status": "OK", "producto":serializer.data}, status=status.HTTP_200_OK)
     
 class ActualizarStockProductoView(generics.UpdateAPIView):
@@ -188,6 +189,50 @@ class ActualizarStockProductoView(generics.UpdateAPIView):
                 "message": "Stock del Producto Actualizado"
                 }, status=status.HTTP_200_OK)
     
+
+class ActualizarOfertaProductoView(generics.UpdateAPIView):
+
+    serializer_class = ActualizarOfertaProductoSerializer
+    parser_classes = [JSONParser]
+
+    def get_object(self, id:int):
+
+        try:
+            producto = Producto.objects.get(id_producto = id)
+        except Producto.DoesNotExist:
+            return None
+
+        return producto
+
+    def put(self, request, id:int, format=None):
+
+        producto = self.get_object(id)
+
+        if producto is None:
+            return Response(
+                {
+                    "status": "Not Found", 
+                    "message": "Producto no Encontrado"
+                    }, status=status.HTTP_404_NOT_FOUND)
+        
+        serializer = self.get_serializer(producto, data=request.data)
+
+        if not serializer.is_valid():
+            return Response(
+                {
+                    "status": "Bad Request", 
+                    "errors": serializer.errors
+                    }, status.HTTP_400_BAD_REQUEST)
+        
+        serializer.save()
+
+        return Response(
+            {
+                "producto":serializer.data, 
+                "status": "OK", 
+                "message": "Se actualizo la oferta del producto"
+                }, status=status.HTTP_200_OK)
+    
 class ListarCategoriasView(generics.ListCreateAPIView):
 
     serializer_class = CategoriaSerializer
@@ -230,7 +275,7 @@ class ListarCategoriasView(generics.ListCreateAPIView):
                 }, status.HTTP_201_CREATED)
         
 
-class DetalleCategoriaView(generics.RetrieveUpdateDestroyAPIView):
+class DetalleCategoriaView(generics.RetrieveAPIView):
 
     serializer_class = CategoriaSerializer
     permission_classes = [AllowAny]
@@ -301,7 +346,7 @@ class ListarOfertasView(generics.ListCreateAPIView):
                 "message": "Se creo la oferta con exito"
                 }, status.HTTP_201_CREATED)
     
-class DetalleOfertaView(generics.RetrieveUpdateDestroyAPIView):
+class DetalleOfertaView(generics.RetrieveAPIView):
 
     serializer_class = OfertaSerializer
     permission_classes = [AllowAny]
@@ -310,7 +355,7 @@ class DetalleOfertaView(generics.RetrieveUpdateDestroyAPIView):
 
         try:
             oferta = Oferta.objects.get(id_oferta = id)
-        except Producto.DoesNotExist:
+        except Oferta.DoesNotExist:
             return None
 
         return oferta
@@ -324,7 +369,7 @@ class DetalleOfertaView(generics.RetrieveUpdateDestroyAPIView):
             return Response(
                 {
                     "status": "Not Found", 
-                    "message": "Oferta no Encontrado"
+                    "message": "Oferta no Encontrada"
                     }, status=status.HTTP_404_NOT_FOUND)
 
         serializer = self.get_serializer(oferta)
@@ -399,7 +444,7 @@ class DetalleBodegaView(generics.RetrieveAPIView):
         return Response({"status": "OK", "Bodega":serializer.data}, status=status.HTTP_200_OK)
     
 
-class CrearProductosBodegaView(generics.ListAPIView):
+class CrearProductosBodegaView(generics.CreateAPIView):
 
     serializer_class = CrearStockBodegaSerializer
     parser_classes = [JSONParser]

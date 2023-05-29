@@ -51,6 +51,21 @@ class ActualizarProductoStockSerializer(serializers.ModelSerializer):
 
         return instance
     
+class ActualizarOfertaProductoSerializer(serializers.ModelSerializer):
+
+    class Meta:
+
+        model = Producto
+        fields = ["id_oferta"]
+
+    def update(self, instance, validated_data):
+
+        instance.id_oferta = validated_data.get("id_oferta", instance.id_oferta)
+
+        instance.save()
+
+        return instance
+    
 class CategoriaSerializer(serializers.ModelSerializer):
 
     class Meta:

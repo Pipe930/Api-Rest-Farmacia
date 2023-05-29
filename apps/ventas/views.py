@@ -243,7 +243,7 @@ class ListarPedidosClientesView(generics.ListAPIView):
 
         if len(serializer.data):
 
-            return Response({"orders": serializer.data}, status.HTTP_200_OK)
+            return Response({"Ordenes": serializer.data}, status.HTTP_200_OK)
 
         return Response({"message": "No hay pedidos registrados"}, status.HTTP_204_NO_CONTENT)
 
@@ -256,7 +256,7 @@ class DetallePedidoClienteView(generics.RetrieveAPIView):
     def get_object(self, id:int):
 
         try:
-            pedido_cliente = PedidoCliente.objects.get(id_orden=id)
+            pedido_cliente = PedidoCliente.objects.get(id_pedido=id)
         except PedidoCliente.DoesNotExist:
             raise Http404
 
@@ -287,7 +287,7 @@ class CrearPedidoClienteView(generics.CreateAPIView):
             return Response(
                 {
                     "data": serializer.data,
-                    "message": "pedido creado con exito"
+                    "message": "Pedido creado con exito"
                     }, status=status.HTTP_201_CREATED)
 
         return Response(serializer.errors, status.HTTP_400_BAD_REQUEST)
