@@ -18,19 +18,30 @@ class ListarSucursalesView(generics.ListCreateAPIView):
         queryset = self.get_queryset()
         serializer = self.serializer_class(queryset, many=True)
 
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        if not len(serializer.data):
+            return Response(
+                {
+                    "status": "No Content", 
+                    "message": "No tenemos sucursales registradas"
+                    }, status.HTTP_204_NO_CONTENT)
+
+        return Response({"status":"OK","Sucursales":serializer.data}, status=status.HTTP_200_OK)
     
     def post(self, request, format=None):
 
         serializer = self.get_serializer(data=request.data)
 
-        if serializer.is_valid():
+        if not serializer.is_valid():
+            return Response(
+                {
+                    "status": "Bad Request", 
+                    "errors": serializer.errors
+                    }, status.HTTP_400_BAD_REQUEST)
 
-            serializer.save()
+        serializer.save()
 
-            return Response({"data": serializer.data, "message": "Se creo la sucursal con exito"}, status.HTTP_201_CREATED)
+        return Response({"data": serializer.data, "status": "Created", "message": "Se creo la sucursal con exito"}, status.HTTP_201_CREATED)
         
-        return Response(serializer.errors, status.HTTP_400_BAD_REQUEST)
     
 class DetalleSucursalView(generics.RetrieveUpdateDestroyAPIView):
 
@@ -42,36 +53,25 @@ class DetalleSucursalView(generics.RetrieveUpdateDestroyAPIView):
         try:
             sucursal = Sucursal.objects.get(id_sucursal = id)
         except Sucursal.DoesNotExist:
-            raise Http404
+            return None
 
         return sucursal
     
     def get(self, request, id:int, format=None):
 
         sucursal = self.get_object(id)
+
+        if sucursal is None:
+
+            return Response(
+                {
+                    "status": "Not Found", 
+                    "message": "Sucursal no Encontrada"
+                    }, status=status.HTTP_404_NOT_FOUND)
+        
         serializer = self.get_serializer(sucursal)
 
-        return Response(serializer.data, status=status.HTTP_200_OK)
-    
-    def put(self, request, id:int, fromat=None):
-
-        sucursal = self.get_object(id)
-        serializer = self.get_serializer(sucursal, data=request.data)
-
-        if not serializer.is_valid():
-
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        
-        serializer.save()
-        return Response({"data":serializer.data, "message": "La sucursal a sido actualizada con exito"}, status=status.HTTP_200_OK)
-
-    
-    def delete(self, request, id:int, format=None):
-
-        sucursal = self.get_object(id)
-        sucursal.delete()
-
-        return Response({"message": "La sucursal a sido eliminada con exito"}, status=status.HTTP_204_NO_CONTENT)
+        return Response({"status":"OK", "Sucursal":serializer.data}, status=status.HTTP_200_OK)
     
 class ListarEmpleadosView(generics.ListCreateAPIView):
 
@@ -85,19 +85,30 @@ class ListarEmpleadosView(generics.ListCreateAPIView):
         queryset = self.get_queryset()
         serializer = self.serializer_class(queryset, many=True)
 
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        
+        if not len(serializer.data):
+            return Response(
+                {
+                    "status": "No Content", 
+                    "message": "No tenemos empleados registrados"
+                    }, status.HTTP_204_NO_CONTENT)
+
+        return Response({"status":"OK", "Empleados":serializer.data}, status=status.HTTP_200_OK)
     
     def post(self, request, format=None):
 
         serializer = self.get_serializer(data=request.data)
 
-        if serializer.is_valid():
+        if not serializer.is_valid():
+            return Response(
+                {
+                    "status": "Bad Request", 
+                    "errors": serializer.errors
+                    }, status.HTTP_400_BAD_REQUEST)
 
-            serializer.save()
+        serializer.save()
 
-            return Response({"data": serializer.data, "message": "Se creo el empleado con exito"}, status.HTTP_201_CREATED)
-        
-        return Response(serializer.errors, status.HTTP_400_BAD_REQUEST)
+        return Response({"data": serializer.data, "status":"Created", "message": "Se creo el empleado con exito"}, status.HTTP_201_CREATED)
     
 class DetalleEmpleadoView(generics.RetrieveUpdateDestroyAPIView):
 
@@ -109,36 +120,25 @@ class DetalleEmpleadoView(generics.RetrieveUpdateDestroyAPIView):
         try:
             empleado = Empleado.objects.get(id_empleado = id)
         except Empleado.DoesNotExist:
-            raise Http404
+            return None
 
         return empleado
     
     def get(self, request, id:int, format=None):
 
         empleado = self.get_object(id)
+
+        if empleado is None:
+
+            return Response(
+                {
+                    "status": "Not Found", 
+                    "message": "Empleado no Encontrado"
+                    }, status=status.HTTP_404_NOT_FOUND)
+        
         serializer = self.get_serializer(empleado)
 
         return Response(serializer.data, status=status.HTTP_200_OK)
-    
-    def put(self, request, id:int, fromat=None):
-
-        empleado = self.get_object(id)
-        serializer = self.get_serializer(empleado, data=request.data)
-
-        if not serializer.is_valid():
-
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        
-        serializer.save()
-        return Response({"data":serializer.data, "message": "El empleado a sido actualizado con exito"}, status=status.HTTP_200_OK)
-
-    
-    def delete(self, request, id:int, format=None):
-
-        empleado = self.get_object(id)
-        empleado.delete()
-
-        return Response({"message": "El empleado a sido eliminado con exito"}, status=status.HTTP_204_NO_CONTENT)
     
 class ListarCargosView(generics.ListCreateAPIView):
 
@@ -150,9 +150,17 @@ class ListarCargosView(generics.ListCreateAPIView):
     def get(self, request, format=None):
 
         queryset = self.get_queryset()
+        
         serializer = self.serializer_class(queryset, many=True)
 
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        if not len(serializer.data):
+            return Response(
+                {
+                    "status": "No Content", 
+                    "message": "No tenemos cargos registrados"
+                    }, status.HTTP_204_NO_CONTENT)
+
+        return Response({"status":"OK","Cargos":serializer.data}, status=status.HTTP_200_OK)
     
     def post(self, request, format=None):
 
@@ -162,7 +170,7 @@ class ListarCargosView(generics.ListCreateAPIView):
 
             serializer.save()
 
-            return Response({"data": serializer.data, "message": "Se creo el empleado con exito"}, status.HTTP_201_CREATED)
+            return Response({"data": serializer.data, "message": "Se creo el cargo con exito"}, status.HTTP_201_CREATED)
         
         return Response(serializer.errors, status.HTTP_400_BAD_REQUEST)
     
@@ -174,15 +182,24 @@ class DetalleCargoView(generics.RetrieveUpdateDestroyAPIView):
     def get_object(self, id:int):
 
         try:
-            cargo = Cargo.objects.get(id_empleado = id)
+            cargo = Cargo.objects.get(id_cargo = id)
         except Cargo.DoesNotExist:
-            raise Http404
+            return None
 
         return cargo
     
     def get(self, request, id:int, format=None):
 
         cargo = self.get_object(id)
+
+        if cargo is None:
+
+            return Response(
+                {
+                    "status": "Not Found", 
+                    "message": "Cargo no Encontrado"
+                    }, status=status.HTTP_404_NOT_FOUND)
+        
         serializer = self.get_serializer(cargo)
 
         return Response(serializer.data, status=status.HTTP_200_OK)
@@ -198,11 +215,3 @@ class DetalleCargoView(generics.RetrieveUpdateDestroyAPIView):
         
         serializer.save()
         return Response({"data":serializer.data, "message": "El cargo a sido actualizado con exito"}, status=status.HTTP_200_OK)
-
-    
-    def delete(self, request, id:int, format=None):
-
-        cargo = self.get_object(id)
-        cargo.delete()
-
-        return Response({"message": "El cargo a sido eliminado con exito"}, status=status.HTTP_204_NO_CONTENT)

@@ -8,7 +8,7 @@ urlsSucursales = [
 
 urlsEmpleados = [
     path("", views.ListarEmpleadosView.as_view()),
-    path("sucursal/<int:id>", views.DetalleEmpleadoView.as_view())
+    path("empleado/<int:id>", views.DetalleEmpleadoView.as_view())
 ]
 
 urlsCargos = [
