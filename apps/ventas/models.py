@@ -78,7 +78,7 @@ class PedidoCliente(models.Model):
     tipo_retiro = models.CharField(max_length=20, choices=CHOICES_WITHDRAWAL)
     direccion = models.CharField(max_length=100)
     num_departamento = models.PositiveSmallIntegerField(blank=True, null=True)
-    id_comuna = models.ForeignKey(Comuna, on_delete=models.CASCADE)
+    id_comuna = models.ForeignKey(Comuna, on_delete=models.SET_NULL, blank=True, null=True)
     id_sucursal = models.ForeignKey(Sucursal, on_delete=models.SET_NULL, blank=True, null=True)
     id_compra = models.ForeignKey(Compra, on_delete=models.CASCADE)
 

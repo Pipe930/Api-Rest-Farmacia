@@ -38,7 +38,7 @@ class Producto(models.Model):
     nombre = models.CharField(max_length=255, unique=True)
     precio = models.PositiveIntegerField()
     stock = models.PositiveIntegerField(default=0)
-    disponible = models.BooleanField(default=True)
+    disponible = models.BooleanField(default=False)
     creado = models.DateTimeField(auto_now_add=True)
     descripcion = models.TextField(default="(Sin Descripcion)", blank=True, null=True)
     id_oferta = models.ForeignKey(Oferta, on_delete=models.SET_NULL, blank=True, null=True)

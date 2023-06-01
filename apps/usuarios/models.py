@@ -45,7 +45,7 @@ class Usuario(AbstractBaseUser, PermissionsMixin):
         verbose_name_plural = "Usuarios"
 
     USERNAME_FIELD = "username"
-    REQUIRED_FIELDS = ["nombre", "apellido", "correo"]
+    REQUIRED_FIELDS = ["correo"]
 
     def natural_key(self) -> Tuple[str]:
         return (self.username,)

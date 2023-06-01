@@ -48,7 +48,7 @@ class AgregarCarritoItemView(generics.CreateAPIView):
 
         return product
 
-    def create(self, request):
+    def post(self, request):
 
         serializer = self.get_serializer(data=request.data)
 
@@ -72,7 +72,7 @@ class RestarCarritoItemView(generics.CreateAPIView):
     permission_classes = [IsAuthenticated]
     authentication_classes = [TokenAuthentication]
 
-    def create(self, request, *args, **kwargs):
+    def post(self, request, *args, **kwargs):
 
         serializer = self.get_serializer(data=request.data)
 

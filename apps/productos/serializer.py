@@ -46,6 +46,7 @@ class ActualizarProductoStockSerializer(serializers.ModelSerializer):
 
         instance.precio = validated_data.get("precio", instance.precio)
         instance.stock = validated_data.get("stock", instance.stock)
+        instance.disponible = True
 
         instance.save()
 

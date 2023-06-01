@@ -8,7 +8,7 @@ class Proveedor(models.Model):
     nombre = models.CharField(max_length=20)
     apellido = models.CharField(max_length=20)
     correo = models.EmailField(unique=True)
-    telefono = models.PositiveIntegerField()
+    telefono = models.PositiveIntegerField(unique=True)
 
     class Meta:
 

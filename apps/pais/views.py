@@ -58,7 +58,6 @@ class ListarProvinciasView(generics.ListAPIView):
 
     serializer_class = ProvinciaSerializer
     permission_classes = [AllowAny]
-    parser_classes = [JSONParser]
     queryset = Provincia.objects.all().order_by("nombre")
 
     # METODO GET
@@ -83,7 +82,6 @@ class ListarProvinciasFilterRegionView(generics.ListAPIView):
 
     serializer_class = ProvinciaSerializer
     permission_classes = [AllowAny]
-    parser_classes = [JSONParser]
 
     # METODO GET
     def get(self, request, id:int, format=None):
@@ -135,7 +133,6 @@ class ListarComunasView(generics.ListAPIView):
 
     serializer_class = ComunaSerializer
     permission_classes = [AllowAny]
-    parser_classes = [JSONParser]
     queryset = Comuna.objects.all().order_by("nombre")
 
     # METODO GET
@@ -159,7 +156,6 @@ class ListarComunasFilterProvinciasView(generics.ListAPIView):
 
     serializer_class = ComunaSerializer
     permission_classes = [AllowAny]
-    parser_classes = [JSONParser]
 
     # METODO GET
     def get(self, request, id:int, format=None):

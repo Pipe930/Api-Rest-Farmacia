@@ -21,7 +21,7 @@ urlsSoapProductos = [
 urlsStockBodega = [
     path("created", views.CrearProductosBodegaView.as_view()),
     path("bodega/<int:id>", views.ListarStockProductosFilterBodegaView.as_view()),
-    path("producto/<int:id>", views.ListarStockProductosFilterProductoView.as_view())
+    path("producto/<int:id>", views.ListarStockBodegasFilterProductoView.as_view())
 ]
 
 urlsCategorias = [

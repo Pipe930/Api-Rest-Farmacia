@@ -11,7 +11,6 @@ class ListarProductosView(generics.ListAPIView):
 
     serializer_class = ProductoSerializer
     permission_classes = [AllowAny]
-    parser_classes = [JSONParser]
     pagination_class = PageNumberPagination
     queryset = Producto.objects.filter(disponible=True, id_oferta__isnull= True).order_by("nombre")
 
@@ -34,7 +33,6 @@ class ListarProductoFilterCategoriaView(generics.ListAPIView):
 
     serializer_class = ProductoSerializer
     permission_classes = [AllowAny]
-    parser_classes = [JSONParser]
     pagination_class = PageNumberPagination
 
     def get(self, request, id:int, format=None):
@@ -59,7 +57,6 @@ class ListarProductosOfertaView(generics.ListAPIView):
 
     serializer_class = ProductoSerializer
     permission_classes = [AllowAny]
-    parser_classes = [JSONParser]
     pagination_class = PageNumberPagination
 
     def get(self, request, format=None):
@@ -194,6 +191,7 @@ class ActualizarOfertaProductoView(generics.UpdateAPIView):
 
     serializer_class = ActualizarOfertaProductoSerializer
     parser_classes = [JSONParser]
+    permission_classes = [AllowAny]
 
     def get_object(self, id:int):
 
@@ -447,6 +445,7 @@ class DetalleBodegaView(generics.RetrieveAPIView):
 class CrearProductosBodegaView(generics.CreateAPIView):
 
     serializer_class = CrearStockBodegaSerializer
+    permission_classes = [AllowAny]
     parser_classes = [JSONParser]
     
     def post(self, request, format=None):
@@ -500,7 +499,7 @@ class ListarStockProductosFilterBodegaView(generics.ListAPIView):
                 "Productos":serializer.data
                 }, status=status.HTTP_200_OK)
     
-class ListarStockProductosFilterProductoView(generics.ListAPIView):
+class ListarStockBodegasFilterProductoView(generics.ListAPIView):
 
     serializer_class = StockBodegaSerializer
     permission_classes = [AllowAny]
@@ -516,5 +515,10 @@ class ListarStockProductosFilterProductoView(generics.ListAPIView):
                     "status": "No Content", 
                     "message": "No tenemos ese producto en ninguna bodega"
                     }, status.HTTP_204_NO_CONTENT)
+        
+        stock_total = 0
 
-        return Response({"status": "OK", "Productos":serializer.data}, status=status.HTTP_200_OK)
+        for producto in queryset:
+            stock_total += producto.stock
+
+        return Response({"status": "OK", "stock_total":stock_total, "Productos":serializer.data}, status=status.HTTP_200_OK)

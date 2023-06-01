@@ -43,7 +43,7 @@ class ListarSucursalesView(generics.ListCreateAPIView):
         return Response({"data": serializer.data, "status": "Created", "message": "Se creo la sucursal con exito"}, status.HTTP_201_CREATED)
         
     
-class DetalleSucursalView(generics.RetrieveUpdateDestroyAPIView):
+class DetalleSucursalView(generics.RetrieveAPIView):
 
     serializer_class = SucursalSerializer
     permission_classes = [AllowAny]
@@ -110,7 +110,7 @@ class ListarEmpleadosView(generics.ListCreateAPIView):
 
         return Response({"data": serializer.data, "status":"Created", "message": "Se creo el empleado con exito"}, status.HTTP_201_CREATED)
     
-class DetalleEmpleadoView(generics.RetrieveUpdateDestroyAPIView):
+class DetalleEmpleadoView(generics.RetrieveAPIView):
 
     serializer_class = EmpleadoSerializer
     permission_classes = [AllowAny]
@@ -174,7 +174,7 @@ class ListarCargosView(generics.ListCreateAPIView):
         
         return Response(serializer.errors, status.HTTP_400_BAD_REQUEST)
     
-class DetalleCargoView(generics.RetrieveUpdateDestroyAPIView):
+class DetalleCargoView(generics.RetrieveUpdateAPIView):
 
     serializer_class = CargoSerializer
     permission_classes = [AllowAny]
