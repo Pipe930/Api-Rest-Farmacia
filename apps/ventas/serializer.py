@@ -129,9 +129,9 @@ class CarritoSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
 
-        carrtio = Carrito.objects.create(**validated_data)
+        carrito = Carrito.objects.create(**validated_data)
 
-        return carrtio
+        return carrito
 
 class AgregarCarritoItemSerializer(serializers.ModelSerializer):
 

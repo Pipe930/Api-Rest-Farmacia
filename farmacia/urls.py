@@ -7,7 +7,7 @@ from apps.sucursales.urls import urlsSucursales, urlsEmpleados, urlsCargos
 from apps.usuarios.urls import urlsUsuarios
 from apps.ventas.urls import urlsCompras, urlsCarritos, urlsPedidosCliente
 from apps.pais.urls import urlsComunas, urlsProvincias, urlsRegiones
-from apps.pedidos.urls import urlsBodeguero, urlsProveedor
+from apps.pedidos.urls import urlsBodeguero, urlsProveedor, urlsPedido
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -28,5 +28,6 @@ urlpatterns = [
     path("stock-bodegas/", include(urlsStockBodega)),
     path("soap/", include(urlsSoapProductos)),
     path("bodegueros/", include(urlsBodeguero)),
-    path("proveedores/", include(urlsProveedor))
+    path("proveedores/", include(urlsProveedor)),
+    path("pedidos/", include(urlsPedido))
 ]

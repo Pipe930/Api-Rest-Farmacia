@@ -12,5 +12,6 @@ urlsProveedor = [
 ]
 
 urlsPedido = [
-    path("", views.ListarPedidosView.as_view())
+    path("", views.ListarPedidosView.as_view()),
+    path("created", views.CrearPedidoView.as_view())
 ]
