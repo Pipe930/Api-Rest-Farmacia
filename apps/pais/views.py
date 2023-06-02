@@ -18,7 +18,7 @@ class ListarRegionesView(generics.ListCreateAPIView):
     # METODO GET
     def get(self, request, format=None):
 
-        queryset = self.get_queryset() # Se obtiene la query
+        queryset = self.get_queryset()
         serializer = self.serializer_class(queryset, many=True) # Se serializa la queryset
 
         if not len(serializer.data): # ¿Hay contenido?
@@ -63,7 +63,7 @@ class ListarProvinciasView(generics.ListAPIView):
     # METODO GET
     def get(self, request, format=None):
 
-        queryset = self.get_queryset() # Se obtiene el query
+        queryset = self.get_queryset()
         serializer = self.serializer_class(queryset, many=True) # Se serializa el queryset
 
         if not len(serializer.data): # ¿Hay contenido?

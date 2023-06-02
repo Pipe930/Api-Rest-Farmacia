@@ -1,4 +1,5 @@
 from django.db import models
+from django.db.models.signals import pre_save
 from apps.sucursales.models import Sucursal
 from apps.productos.models import Bodega, Producto
 
@@ -89,6 +90,8 @@ class Pedido(models.Model):
     fecha_emicion = models.DateField(auto_now_add=True)
     estado = models.CharField(max_length=40, choices=CHOICES_PEDIDO, default="En Preparacion")
     destino = models.CharField(max_length=255)
+    productos = models.JSONField()
+    cantidad_total = models.PositiveIntegerField()
     id_bodeguero = models.ForeignKey(Bodeguero, on_delete=models.CASCADE)
     id_proveedor = models.ForeignKey(Proveedor, on_delete=models.CASCADE)
 
@@ -100,15 +103,17 @@ class Pedido(models.Model):
 
     def __str__(self) -> str:
         return str(self.id_bodeguero)
-    
 
-class ProductoPedido(models.Model):
+# Funcion para calcular la cantidad de productos totales del pedido
+def set_cantidad_total(sender, instance, *args, **kwargs):
 
-    id_producto_pedido = models.BigAutoField(primary_key=True)
-    cantidad = models.PositiveIntegerField()
-    id_pedido = models.ForeignKey(Pedido, on_delete=models.CASCADE)
-    id_producto = models.ForeignKey(Producto, on_delete=models.CASCADE)
+    productos = instance.productos
 
-    class Meta:
+    cantidad_total = 0
 
-        db_table = 'producto_pedido'
+    for producto in productos["productos"]:
+        cantidad_total += producto["cantidad"]
+
+    instance.cantidad_total = cantidad_total
+
+pre_save.connect(set_cantidad_total, sender = Pedido)
