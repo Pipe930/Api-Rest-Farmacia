@@ -20,13 +20,21 @@ class CarritoUsuarioView(generics.RetrieveAPIView):
         try:
             carrito = Carrito.objects.get(id_usuario=idUser)
         except Carrito.DoesNotExist:
-            raise Http404
+            return None
 
         return carrito
 
     def get(self, request, idUser:int, format=None):
 
         carrito = self.get_object(idUser)
+
+        if carrito is None:
+
+            return Response(
+                {
+                    "status": "Not Found", 
+                    "message": "Carrito no Encontrado"
+                    }, status=status.HTTP_404_NOT_FOUND)
 
         serializer = self.get_serializer(carrito)
 
@@ -44,7 +52,7 @@ class AgregarCarritoItemView(generics.CreateAPIView):
         try:
             product = Producto.objects.get(id_producto=id)
         except Producto.DoesNotExist:
-            raise Http404
+            return None
 
         return product
 
@@ -52,18 +60,26 @@ class AgregarCarritoItemView(generics.CreateAPIView):
 
         serializer = self.get_serializer(data=request.data)
 
-        if serializer.is_valid():
+        if not serializer.is_valid():
 
-            producto = self.get_object(serializer.data["producto"])
+            return Response(serializer.errors, status.HTTP_400_BAD_REQUEST)
 
-            if producto.stock < serializer.data["cantidad"]:
+        producto = self.get_object(serializer.data["producto"])
 
-                return Response({"message": "La cantidad supera el stock disponible"}, status.HTTP_400_BAD_REQUEST)
+        if producto is None:
 
-            serializer.save()
-            return Response({"data": serializer.data, "message": "Agregado al carrito con exito"}, status.HTTP_201_CREATED)
+            return Response(
+                {
+                    "status": "Not Found", 
+                    "message": "Producto no Encontrado"
+                    }, status=status.HTTP_404_NOT_FOUND)
 
-        return Response(serializer.errors, status.HTTP_400_BAD_REQUEST)
+        if producto.stock < serializer.data["cantidad"]:
+
+            return Response({"message": "La cantidad supera el stock disponible"}, status.HTTP_400_BAD_REQUEST)
+
+        serializer.save()
+        return Response({"data": serializer.data, "message": "Agregado al carrito con exito"}, status.HTTP_201_CREATED)
 
 class RestarCarritoItemView(generics.CreateAPIView):
 
@@ -76,14 +92,14 @@ class RestarCarritoItemView(generics.CreateAPIView):
 
         serializer = self.get_serializer(data=request.data)
 
-        if serializer.is_valid():
+        if not serializer.is_valid():
+            return Response(serializer.errors, status.HTTP_400_BAD_REQUEST)
 
-            serializer.save()
+        serializer.save()
 
-            return Response({"message": "Se resto el producto"}, status.HTTP_200_OK)
+        return Response({"message": "Se resto el producto"}, status.HTTP_200_OK)
 
 
-        return Response(serializer.errors, status.HTTP_400_BAD_REQUEST)
 
 class LimpiarCarritoView(generics.DestroyAPIView):
 
@@ -95,13 +111,21 @@ class LimpiarCarritoView(generics.DestroyAPIView):
         try:
             carrito = Carrito.objects.get(id_carrito=id)
         except Carrito.DoesNotExist:
-            raise Http404
+            return None
 
         return carrito
 
     def delete(self, request, id:int, format=None):
 
         carrito = self.get_object(id)
+
+        if carrito is None:
+
+            return Response(
+                {
+                    "status": "Not Found", 
+                    "message": "Carrito no Encontrado"
+                    }, status=status.HTTP_404_NOT_FOUND)
 
         items = Items.objects.filter(id_carrito = carrito.id_carrito)
 
@@ -130,16 +154,16 @@ class CrearCompraView(generics.CreateAPIView):
 
         serializer = self.get_serializer(data=request.data)
 
-        if serializer.is_valid():
+        if not serializer.is_valid():
+            return Response(serializer.errors, status.HTTP_400_BAD_REQUEST)
 
-            serializer.save()
-            return Response(
-                {
-                    "data": serializer.data,
-                    "message": "Se creo la compra con exito"
-                    }, status.HTTP_201_CREATED)
+        serializer.save()
+        return Response(
+            {
+                "data": serializer.data,
+                "message": "Se creo la compra con exito"
+                }, status.HTTP_201_CREATED)
 
-        return Response(serializer.errors, status.HTTP_400_BAD_REQUEST)
 
 class CancelarCompraView(generics.UpdateAPIView):
 
@@ -153,7 +177,7 @@ class CancelarCompraView(generics.UpdateAPIView):
         try:
             compra = Compra.objects.get(id_compra=id)
         except Compra.DoesNotExist:
-            raise Http404
+            return None
 
         return compra
 
@@ -163,7 +187,16 @@ class CancelarCompraView(generics.UpdateAPIView):
             request.data["estado"] = False
 
         compra = self.get_object(id)
-        serializer = CancelarCompraSerializer(compra, data=request.data)
+
+        if compra is None:
+
+            return Response(
+                {
+                    "status": "Not Found", 
+                    "message": "Compra no Encontrada"
+                    }, status=status.HTTP_404_NOT_FOUND)
+        
+        serializer = self.get_serializer(compra, data=request.data)
 
         if serializer.is_valid():
 
@@ -217,13 +250,22 @@ class DetalleCompraView(generics.RetrieveAPIView):
         try:
             compra = Compra.objects.get(id_compra=id)
         except Compra.DoesNotExist:
-            raise Http404
+            return None
 
         return compra
 
     def get(self, request, id:int):
 
         compra = self.get_object(id)
+
+        if compra is None:
+
+            return Response(
+                {
+                    "status": "Not Found", 
+                    "message": "Compra no Encontrada"
+                    }, status=status.HTTP_404_NOT_FOUND)
+        
         serializer = self.get_serializer(compra)
 
         return Response(serializer.data, status.HTTP_200_OK)
@@ -258,13 +300,21 @@ class DetallePedidoClienteView(generics.RetrieveAPIView):
         try:
             pedido_cliente = PedidoCliente.objects.get(id_pedido=id)
         except PedidoCliente.DoesNotExist:
-            raise Http404
+            return None
 
         return pedido_cliente
 
     def get(self, request, id:int, format=None):
 
         pedido_cliente = self.get_object(id)
+        if pedido_cliente is None:
+
+            return Response(
+                {
+                    "status": "Not Found", 
+                    "message": "Compra no Encontrada"
+                    }, status=status.HTTP_404_NOT_FOUND)
+        
         serializer = self.get_serializer(pedido_cliente)
 
         return Response(serializer.data, status.HTTP_200_OK)
@@ -280,14 +330,13 @@ class CrearPedidoClienteView(generics.CreateAPIView):
 
         serializer = self.get_serializer(data=request.data)
 
-        if serializer.is_valid():
+        if not serializer.is_valid():
+            return Response(serializer.errors, status.HTTP_400_BAD_REQUEST)
 
-            serializer.save()
+        serializer.save()
 
-            return Response(
-                {
-                    "data": serializer.data,
-                    "message": "Pedido creado con exito"
-                    }, status=status.HTTP_201_CREATED)
-
-        return Response(serializer.errors, status.HTTP_400_BAD_REQUEST)
+        return Response(
+            {
+                "data": serializer.data,
+                "message": "Pedido creado con exito"
+                }, status=status.HTTP_201_CREATED)

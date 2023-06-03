@@ -12,6 +12,18 @@ class PedidoClienteSerializer(serializers.ModelSerializer):
         model = PedidoCliente
         fields = "__all__"
 
+    def validate(self, attrs):
+        if attrs.get('id_sucursal') is None and attrs.get('id_comuna') is None:
+            raise serializers.ValidationError('Debe especificar al menos la sucursal o la comuna.')
+
+        if attrs.get('id_sucursal') is not None and attrs.get('id_comuna') is not None:
+            raise serializers.ValidationError('Solo debe especificar uno, sucursal o la comuna.')
+        
+        if attrs.get('id_comuna') and attrs.get('direccion'):
+            raise serializers.ValidationError('Si eligio envio a domicilio, tiene que indicar su direccion')
+
+        return attrs
+
     def create(self, validated_data):
 
         pedido_cliente = PedidoCliente.objects.create(**validated_data)

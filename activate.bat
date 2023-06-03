@@ -68,7 +68,7 @@ python manage.py migrate
 
 echo \n "Creacion del superusuario"
 echo \n "Ingrese una contrasena"
-python manage.py createsuperuser --username admin --correo admin@gmail.com
+python manage.py createsuperuser --username admin --nombre adminnombre --apellido adminapellido --correo admin@gmail.com
 
 @REM Ejecucion del proyecto
 python manage.py runserver
