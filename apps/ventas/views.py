@@ -2,7 +2,6 @@ from rest_framework import status, generics
 from rest_framework.response import Response
 from .models import Carrito, Items, Compra, PedidoCliente
 from apps.productos.models import Producto
-from django.http import Http404
 from .serializer import CarritoSerializer, AgregarCarritoItemSerializer, CancelarCompraSerializer, CompraSerializer, PedidoClienteSerializer, RestarCarritoItemSerializer
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.authentication import TokenAuthentication

@@ -1,6 +1,5 @@
 from rest_framework.response import Response
 from rest_framework import generics, status
-from django.http import Http404
 from .models import Sucursal, Empleado, Cargo
 from .serializer import EmpleadoSerializer, SucursalSerializer, CargoSerializer
 from rest_framework.parsers import JSONParser

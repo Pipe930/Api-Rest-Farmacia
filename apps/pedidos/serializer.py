@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Proveedor, Bodeguero, GuiaDespacho, ProductoDespacho, Pedido
+from .models import Proveedor, Bodeguero, GuiaDespacho, ProductoDespacho, Pedido, Factura
     
 class ProveedorSerializer(serializers.ModelSerializer):
 
@@ -32,13 +32,13 @@ class PedidoSerializer(serializers.ModelSerializer):
     class Meta:
 
         model = Pedido
-        fields = ["fecha_emicion", "estado", "destino", "productos", "cantidad_total", "id_bodeguero", "id_proveedor"]
+        fields = ["fecha_emicion", "estado", "destino", "id_bodeguero", "id_factura"]
 
 class CrearPedidoSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Pedido
-        fields = ["id_bodeguero", "id_proveedor", "destino", "productos"] 
+        fields = ["id_bodeguero", "id_factura", "destino"] 
 
     def create(self, validated_data):
 
@@ -59,16 +59,43 @@ class ActualizarEstadoPedidoSerializer(serializers.ModelSerializer):
         instance.save()
 
         return instance
-    
+
+class CrearGuiaDespachoSerializer(serializers.ModelSerializer):
+
+    class Meta:
+
+        model = GuiaDespacho
+        fields = ["destino", "id_sucursal", "id_bodeguero"]
+
+    def create(self, validated_data):
+
+        guia_despacho = GuiaDespacho.objects.create(**validated_data)
+
+        return  guia_despacho
+
 class GuiaDespachoSerializer(serializers.ModelSerializer):
 
     class Meta:
 
         model = GuiaDespacho
-        fields = "__all__"
+        fields = ["activo", "fecha_emicion", "estado", "destino", "id_sucursal"]
+
+class FacturaSerializer(serializers.ModelSerializer):
+
+    class Meta:
+
+        model = Factura
+        fields = ["activo", "fecha_emicion", "productos", "precio_total", "id_proveedor", "id_bodeguero"]
+
+class CrearFacturaSerialzer(serializers.ModelSerializer):
+
+    class Meta:
+
+        model = Factura
+        fields = ["productos", "precio_total", "id_bodeguero", "id_proveedor"]
 
     def create(self, validated_data):
 
-        guiadespacho = GuiaDespacho.objects.create(**validated_data)
+        factura = Factura.objects.create()
 
-        return guiadespacho
+        return factura

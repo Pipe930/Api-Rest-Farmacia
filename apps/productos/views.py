@@ -5,7 +5,6 @@ from .serializer import OfertaSerializer,ProductoSerializer, CategoriaSerializer
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.parsers import JSONParser
 from rest_framework.permissions import AllowAny
-from datetime import date
 
 class ListarProductosView(generics.ListAPIView):
 

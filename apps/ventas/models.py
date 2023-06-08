@@ -65,7 +65,9 @@ CHOICES_WITHDRAWAL = [
 CHOICES_CONDITION = [
     ("en preparacion", "en preparacion"),
     ("en reparto", "en reparto"),
-    ("en camino", "en camino"),
+    ("en envio", "en envio"),
+    ("en retraso", "en retraso"),
+    ("cancelado", "cancelado"),
     ("entregado", "entregado")
 ]
 

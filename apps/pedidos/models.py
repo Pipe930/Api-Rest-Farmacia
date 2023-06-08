@@ -2,6 +2,7 @@ from django.db import models
 from django.db.models.signals import pre_save
 from apps.sucursales.models import Sucursal
 from apps.productos.models import Bodega, Producto
+from uuid import uuid4
 
 class Proveedor(models.Model):
 
@@ -76,35 +77,29 @@ class ProductoDespacho(models.Model):
 
         db_table = 'producto_despacho'
 
-CHOICES_PEDIDO = [
-    ("En Preparacion", "En Preparacion"),
-    ("En Reparto", "En Reparto"),
-    ("En Envio", "En Envio"),
-    ("En Revicion", "En Revicion"),
-    ("Almacenado", "Almacenado")
-]
+# Clase Factura
 
-class Pedido(models.Model):
+class Factura(models.Model):
 
-    id_pedido = models.BigAutoField(primary_key=True)
+    id_factura = models.BigAutoField(primary_key=True)
+    code = models.UUIDField(unique=True, default=uuid4)
     fecha_emicion = models.DateField(auto_now_add=True)
-    estado = models.CharField(max_length=40, choices=CHOICES_PEDIDO, default="En Preparacion")
-    destino = models.CharField(max_length=255)
     productos = models.JSONField()
-    cantidad_total = models.PositiveIntegerField()
+    precio_total = models.PositiveIntegerField()
+    productos_total = models.PositiveIntegerField()
     id_bodeguero = models.ForeignKey(Bodeguero, on_delete=models.CASCADE)
     id_proveedor = models.ForeignKey(Proveedor, on_delete=models.CASCADE)
 
     class Meta:
 
-        db_table = 'pedido'
-        verbose_name = 'pedido'
-        verbose_name_plural = 'pedidos'
+        db_table = 'factura'
+        verbose_name = 'factura'
+        verbose_name_plural = 'facturas'
 
-    def __str__(self) -> str:
-        return str(self.id_bodeguero)
-
-# Funcion para calcular la cantidad de productos totales del pedido
+    def __str__(self):
+        return str(self.code)
+    
+# Funcion para calcular la cantidad de productos totales de la factura
 def set_cantidad_total(sender, instance, *args, **kwargs):
 
     productos = instance.productos
@@ -116,4 +111,32 @@ def set_cantidad_total(sender, instance, *args, **kwargs):
 
     instance.cantidad_total = cantidad_total
 
-pre_save.connect(set_cantidad_total, sender = Pedido)
+pre_save.connect(set_cantidad_total, sender = Factura)
+    
+
+CHOICES_PEDIDO = [
+    ("En Preparacion", "En Preparacion"),
+    ("En Reparto", "En Reparto"),
+    ("En Envio", "En Envio"),
+    ("En Revicion", "En Revicion"),
+    ("Almacenado", "Almacenado")
+]
+
+
+class Pedido(models.Model):
+
+    id_pedido = models.BigAutoField(primary_key=True)
+    fecha_emicion = models.DateField(auto_now_add=True)
+    estado = models.CharField(max_length=40, choices=CHOICES_PEDIDO, default="En Preparacion")
+    destino = models.CharField(max_length=255)
+    id_bodeguero = models.ForeignKey(Bodeguero, on_delete=models.CASCADE)
+    id_factura = models.ForeignKey(Factura, on_delete=models.CASCADE)
+
+    class Meta:
+
+        db_table = 'pedido'
+        verbose_name = 'pedido'
+        verbose_name_plural = 'pedidos'
+
+    def __str__(self) -> str:
+        return str(self.id_bodeguero)

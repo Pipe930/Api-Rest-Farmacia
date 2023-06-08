@@ -52,3 +52,23 @@ class Usuario(AbstractBaseUser, PermissionsMixin):
 
     def __str__(self) -> str:
         return self.username
+
+class Cliente(models.Model):
+
+    id_cliente = models.BigAutoField(primary_key=True)
+    nombre = models.CharField(max_length=20)
+    apellido = models.CharField(max_length=20)
+    run = models.PositiveIntegerField(unique=True)
+    dv = models.CharField(max_length=1)
+    correo = models.EmailField(unique=True)
+    telefono = models.CharField(max_length=12, unique=True)
+    id_usuario = models.OneToOneField(Usuario, on_delete=models.CASCADE)
+
+    class Meta:
+
+        db_table = 'cliente'
+        verbose_name = 'cliente'
+        verbose_name_plural = 'clientes'
+
+    def __str__(self) -> str:
+        return "{} {}".format(self.nombre, self.apellido)

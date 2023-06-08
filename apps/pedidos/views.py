@@ -1,7 +1,7 @@
 from rest_framework.response import Response
 from rest_framework import generics, status
-from .models import Pedido, Proveedor, GuiaDespacho, Bodeguero
-from .serializer import PedidoSerializer, BodegueroSerializer, ProveedorSerializer, GuiaDespachoSerializer, CrearPedidoSerializer, ActualizarEstadoPedidoSerializer
+from .models import Pedido, Proveedor, GuiaDespacho, Bodeguero, Factura
+from .serializer import PedidoSerializer, BodegueroSerializer, ProveedorSerializer, GuiaDespachoSerializer, CrearPedidoSerializer, ActualizarEstadoPedidoSerializer, CrearGuiaDespachoSerializer, CrearFacturaSerialzer, FacturaSerializer
 from rest_framework.parsers import JSONParser
 from rest_framework.permissions import AllowAny
 
@@ -107,22 +107,21 @@ class ListarPedidosView(generics.ListAPIView):
 
         return Response({"status":"OK","Bodegueros": serializer.data}, status.HTTP_200_OK)
     
-class ListarPedidosView(generics.ListAPIView):
+class ListarPedidosFacturaView(generics.ListAPIView):
 
     serializer_class = PedidoSerializer
     permission_classes = [AllowAny]
-    queryset = Pedido.objects.all()
 
-    def get(self, request, format=None):
+    def get(self, request, id:int, format=None):
 
-        queryset = self.get_queryset()
+        queryset = Pedido.objects.filter(id_factura=id)
         serializer = self.serializer_class(queryset, many=True)
 
         if not len(serializer.data):
             return Response(
                 {
                     "status": "No Content", 
-                    "message": "No tenemos pedidos registrados"
+                    "message": "No tenemos pedidos con esa factura"
                     }, status.HTTP_204_NO_CONTENT)
 
         return Response({"status":"OK","Bodegueros": serializer.data}, status.HTTP_200_OK)
@@ -212,3 +211,67 @@ class ActualizarEstadoPedidoView(generics.UpdateAPIView):
                 "status": "Update", 
                 "message": "El estado del pedido a sido actualizado con exito"
                 }, status.HTTP_200_OK)
+
+class ListarFacturasView(generics.ListAPIView):
+
+    serializer_class = FacturaSerializer
+    permission_classes = [AllowAny]
+    queryset = Factura.objects.all()
+
+    def get(self, request, format=None):
+
+        facturas = self.get_queryset()
+        serializer = self.get_serializer(facturas, many=True)
+
+        if not len(serializer.data):
+
+            return Response(
+                {
+                    "status": "No Content",
+                    "message": "No tenemos facturas registradas"
+                }, status.HTTP_204_NO_CONTENT)
+
+        return Response({"status": "OK", "Facturas": serializer.data}, status.HTTP_200_OK)
+
+class FacturasProveedorView(generics.ListAPIView):
+
+    serializer_class = FacturaSerializer
+    permission_classes = [AllowAny]
+
+    def get(self, request, id:int, format=None):
+
+        queryset = Factura.objects.filter(id_proveedor=id)
+        serializer = self.get_serializer(queryset, many=True)
+
+        if not len(serializer.data):
+
+            return Response(
+                {
+                    "status": "No Content",
+                    "message": "No tenemos facturas con ese proveedor"
+                }, status.HTTP_204_NO_CONTENT)
+
+        return Response({"status": "OK", "Facturas": serializer.data}, status.HTTP_200_OK)
+
+class CrearFacturaView(generics.CreateAPIView):
+
+    serializer_class = CrearFacturaSerialzer
+    permission_classes = [AllowAny]
+    parser_classes = [JSONParser]
+
+    def post(self, request, format=None):
+
+        serializer = self.get_serializer(data=request.data)
+
+        if not serializer.is_valid():
+
+            return Response({"status": "Bad Request", "errors" :serializer.errors}, status.HTTP_400_BAD_REQUEST)
+
+        serializer.save()
+
+        return Response(
+            {
+                "data": serializer.data,
+                "message": "Se creo la factura con exito",
+                "status": "Created"
+            }, status.HTTP_201_CREATED)

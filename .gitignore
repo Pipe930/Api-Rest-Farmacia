@@ -10,3 +10,6 @@ migrations
 
 # Base de Datos
 db.sqlite3
+
+# IDES
+.idea
