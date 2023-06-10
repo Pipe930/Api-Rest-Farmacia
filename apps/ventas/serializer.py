@@ -233,3 +233,14 @@ class RestarCarritoItemSerializer(serializers.ModelSerializer):
         calcular_total_productos(id_carrito)
 
         return self.instance
+    
+class CrearTransbankSerializer(serializers.Serializer):
+
+    amount = serializers.IntegerField()
+    session_id = serializers.CharField()
+    buy_order = serializers.CharField()
+    return_url = serializers.CharField()
+
+class CancelarTransbankSerializer(serializers.Serializer):
+
+    amount = serializers.IntegerField()

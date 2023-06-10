@@ -53,7 +53,6 @@ class GuiaDespacho(models.Model):
 
     id_guia_despacho = models.BigAutoField(primary_key=True)
     code = models.UUIDField(default=uuid4, unique=True)
-    activo = models.BooleanField(default=True)
     fecha_emicion = models.DateField(auto_now_add=True)
     estado = models.CharField(max_length=40, choices=CHOICES_GUIA_DESPACHO, default="En Preparacion")
     destino = models.CharField(max_length=255)

@@ -108,6 +108,21 @@ class CrearGuiaDespachoSerializer(serializers.ModelSerializer):
             )
 
         return guia_despacho
+    
+class ActualizarEstadoGuiaDespachoSerializer(serializers.ModelSerializer):
+
+    class Meta:
+
+        model = GuiaDespacho
+        fields = ["estado"]
+
+    def update(self, instance, validated_data):
+
+        instance.estado = validated_data.get("estado", instance.estado)
+
+        instance.save()
+
+        return instance
 
 class GuiaDespachoSerializer(serializers.ModelSerializer):
 

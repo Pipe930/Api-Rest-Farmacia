@@ -27,7 +27,7 @@ class CrearProductoSerializer(serializers.ModelSerializer):
     class Meta:
 
         model = Producto
-        fields = "__all__"
+        fields = ["nombre", "precio", "descripcion", "id_categoria"]
 
     def create(self, validated_data):
 
@@ -107,7 +107,7 @@ class CrearStockBodegaSerializer(serializers.ModelSerializer):
     class Meta:
 
         model = DetalleBodega
-        fields = "__all__"
+        fields = ["stock", "id_bodega", "id_producto"]
 
     def save(self, **kwargs):
 

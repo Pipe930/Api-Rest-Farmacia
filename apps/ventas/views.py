@@ -2,12 +2,13 @@ from rest_framework import status, generics
 from rest_framework.response import Response
 from .models import Carrito, Items, Compra, PedidoCliente
 from apps.productos.models import Producto
-from .serializer import CarritoSerializer, AgregarCarritoItemSerializer, CancelarCompraSerializer, CompraSerializer, PedidoClienteSerializer, RestarCarritoItemSerializer
+from .serializer import CarritoSerializer, AgregarCarritoItemSerializer, CancelarCompraSerializer, CompraSerializer, PedidoClienteSerializer, RestarCarritoItemSerializer, CrearTransbankSerializer, CancelarTransbankSerializer
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.parsers import JSONParser
 from .total_carrito import calcular_total_cantidad, calcular_total_productos, carrito_total
 from farmacia.permission import ClientePermission
+import requests
 
 class CarritoUsuarioView(generics.RetrieveAPIView):
 
@@ -340,3 +341,74 @@ class CrearPedidoClienteView(generics.CreateAPIView):
                 "data": serializer.data,
                 "message": "Pedido creado con exito"
                 }, status=status.HTTP_201_CREATED)
+    
+def header_request_transbank():
+    headers = {
+                "Authorization": "Token",
+                "Tbk-Api-Key-Id": "597055555532",
+                "Tbk-Api-Key-Secret": "579B532A7440BB0C9079DED94D31EA1615BACEB56610332264630D42D0A36B1C",
+                "Content-Type": "application/json",
+                "Access-Control-Allow-Origin": "*",
+                'Referrer-Policy': 'origin-when-cross-origin',
+                } 
+    return headers
+
+class CrearTransbankView(generics.CreateAPIView):
+
+    serializer_class = CrearTransbankSerializer
+
+    def post(self, request):
+
+        serializer = self.get_serializer(data=request.data)
+
+        if serializer.is_valid():
+
+            url = "https://webpay3gint.transbank.cl/rswebpaytransaction/api/webpay/v1.2/transactions"
+
+            headers = header_request_transbank()
+
+            response = requests.post(url, json = serializer.data, headers=headers)
+
+            response_dict = response.json()
+
+            return Response({"message": "Creacion de transbank exitosa", "data": response_dict})
+        
+        return Response(serializer.errors)
+    
+class ConfirmarTransbankView(generics.RetrieveAPIView):
+
+    def get(self, request, token:str):
+
+        headers = header_request_transbank()
+
+        url = f"https://webpay3gint.transbank.cl/rswebpaytransaction/api/webpay/v1.2/transactions/{token}"
+
+        response = requests.get(url, headers=headers)
+
+        print(response.json())
+
+        response_dict = response.json()
+
+        return Response({"message": "Confirmacion de transbank con exito", "data": response_dict})
+    
+class CancelarTransbankView(generics.CreateAPIView):
+
+    serializer_class = CancelarTransbankSerializer
+
+    def post(self, request, token:str):
+
+        serializer = self.get_serializer(data=request.data)
+
+        if serializer.is_valid():
+
+            url = f"https://webpay3gint.transbank.cl/rswebpaytransaction/api/webpay/v1.2/transactions/{token}/refunds"
+
+            headers = header_request_transbank()
+
+            response = requests.post(url, json = serializer.data, headers=headers)
+
+            response_dict = response.json()
+
+            return Response({"message": "Se cancelo la compra con exito", "data": response_dict}, status.HTTP_200_OK)
+        
+        return Response(serializer.errors, status.HTTP_400_BAD_REQUEST)

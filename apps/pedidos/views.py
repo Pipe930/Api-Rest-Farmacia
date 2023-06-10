@@ -1,7 +1,7 @@
 from rest_framework.response import Response
 from rest_framework import generics, status
 from .models import Pedido, Proveedor, GuiaDespacho, Bodeguero, Factura
-from .serializer import PedidoSerializer, BodegueroSerializer, ProveedorSerializer, GuiaDespachoSerializer, CrearPedidoSerializer, ActualizarEstadoPedidoSerializer, CrearGuiaDespachoSerializer, CrearFacturaSerialzer, FacturaSerializer
+from .serializer import PedidoSerializer, BodegueroSerializer, ProveedorSerializer, GuiaDespachoSerializer, CrearPedidoSerializer, ActualizarEstadoPedidoSerializer, CrearGuiaDespachoSerializer, CrearFacturaSerialzer, FacturaSerializer, ActualizarEstadoGuiaDespachoSerializer
 from rest_framework.parsers import JSONParser
 from rest_framework.permissions import AllowAny
 
@@ -342,3 +342,36 @@ class CrearGuiaDespachoView(generics.CreateAPIView):
                 "data": serializer.data,
                 "message": "Se creo la guia de despacho con exito"
                 }, status.HTTP_201_CREATED)
+
+class ActualizarEstadoGuiaDespachoView(generics.UpdateAPIView):
+
+    serializer_class = ActualizarEstadoGuiaDespachoSerializer
+    permission_classes = [AllowAny]
+
+    def get_object(self, id:int):
+
+        try:
+            guia_despacho = GuiaDespacho.objects.get(id_guia_despacho = id)
+        except GuiaDespacho.DoesNotExist:
+
+            return None
+
+        return guia_despacho
+
+    def put(self, request, id:int):
+
+        guia_despacho = self.get_object(id)
+        serializer = self.get_serializer(guia_despacho, data=request.data)
+
+        if not serializer.is_valid():
+            return Response({"status": "Bad Request", "errors": serializer.errors}, status.HTTP_400_BAD_REQUEST)
+
+        serializer.save()
+
+        return Response(
+            {
+                "status": "Update",
+                "data": serializer.data,
+                "message": "Se actualizo el estado de la guia de despacho con exito"
+                }, status.HTTP_200_OK)
+

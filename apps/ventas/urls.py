@@ -20,3 +20,9 @@ urlsPedidosCliente = [
     path("pedido/<int:id>", views.DetallePedidoClienteView.as_view()),
     path("created", views.CrearPedidoClienteView.as_view()),
 ]
+
+urlsTransbank = [
+    path("transaction/create", views.CrearTransbankView.as_view()),
+    path("transaction/commit/<str:token>", views.ConfirmarTransbankView.as_view()),
+    path("transaction/reverse-or-cancel/<str:token>", views.CancelarTransbankView.as_view())
+]
