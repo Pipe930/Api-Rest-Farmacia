@@ -33,12 +33,12 @@ class UsuarioSerializer(serializers.ModelSerializer):
         cliente_data = validated_data.pop("cliente")
         contrasena = validated_data.pop("password")
 
-        usuario = Usuario.objects.create_user(password=contrasena, **validated_data)
+        usuario = Usuario.objects.create_user(password = contrasena, **validated_data)
         Cliente.objects.create(
-            id_usuario=usuario, 
-            correo=usuario.correo, 
-            nombre=usuario.nombre, 
-            apellido=usuario.apellido, 
+            id_usuario = usuario, 
+            correo = usuario.correo, 
+            nombre = usuario.nombre, 
+            apellido = usuario.apellido,
             **cliente_data)
 
         return usuario

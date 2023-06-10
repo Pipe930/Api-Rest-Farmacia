@@ -23,3 +23,9 @@ urlsFactura = [
     path("proveedor/<int:id>", views.FacturasProveedorView.as_view()),
     path("created", views.CrearFacturaView.as_view()),
 ]
+
+urlsGuiaDespacho = [
+    path("", views.ListarGuiaDespachoView.as_view()),
+    path("created", views.CrearGuiaDespachoView.as_view()),
+    path("sucursal/<int:id>", views.ListarGuiaDespachoSucursalView.as_view())
+]

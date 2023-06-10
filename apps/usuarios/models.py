@@ -4,7 +4,7 @@ from django.contrib.auth.models import BaseUserManager, AbstractBaseUser, Permis
 
 class UserManager(BaseUserManager):
 
-    def _create_user(self, username, correo, nombre, apellido, password, is_staff, is_superuser, **extra_fields):
+    def _create_user(self, username, correo, nombre, apellido, password, is_staff, is_superuser, rol, **extra_fields):
 
         user = self.model(
             username = username,
@@ -13,6 +13,7 @@ class UserManager(BaseUserManager):
             apellido = apellido,
             is_staff = is_staff,
             is_superuser = is_superuser,
+            rol = rol,
             **extra_fields
         )
 
@@ -20,12 +21,25 @@ class UserManager(BaseUserManager):
         user.save(using = self.db)
 
         return user
+    
+    def create_grocer(self, username, correo, nombre, apellido, password=None, **extra_fields):
+        return self._create_user(username, correo, nombre, apellido, password, True, False, "bodeguero", **extra_fields)
+    
+    def create_employee(self, username, correo, nombre, apellido, password=None, **extra_fields):
+        return self._create_user(username, correo, nombre, apellido, password, True, False, "empleado", **extra_fields)
 
     def create_user(self, username, correo, nombre, apellido, password=None, **extra_fields):
-        return self._create_user(username, correo, nombre, apellido, password, False, False, **extra_fields)
+        return self._create_user(username, correo, nombre, apellido, password, False, False, "cliente", **extra_fields)
 
     def create_superuser(self, username, correo, nombre, apellido, password=None, **extra_fields):
-        return self._create_user(username, correo, nombre, apellido, password, True, True, **extra_fields)
+        return self._create_user(username, correo, nombre, apellido, password, True, True, "administrador", **extra_fields)
+    
+CHOICES_ROLES = [
+    ("bodeguero", "bodeguero"),
+    ("empleado", "empleado"),
+    ("cliente", "cliente"),
+    ("administrador", "administrador"),
+]
 
 class Usuario(AbstractBaseUser, PermissionsMixin):
 
@@ -37,6 +51,7 @@ class Usuario(AbstractBaseUser, PermissionsMixin):
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
     is_superuser = models.BooleanField(default=False)
+    rol = models.CharField(max_length=20, choices=CHOICES_ROLES)
     objects = UserManager()
 
     class Meta:
@@ -45,7 +60,7 @@ class Usuario(AbstractBaseUser, PermissionsMixin):
         verbose_name_plural = "Usuarios"
 
     USERNAME_FIELD = "username"
-    REQUIRED_FIELDS = ["correo"]
+    REQUIRED_FIELDS = ["correo", "nombre", "apellido"]
 
     def natural_key(self) -> Tuple[str]:
         return (self.username,)

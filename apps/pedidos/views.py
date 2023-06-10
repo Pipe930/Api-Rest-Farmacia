@@ -275,3 +275,70 @@ class CrearFacturaView(generics.CreateAPIView):
                 "message": "Se creo la factura con exito",
                 "status": "Created"
             }, status.HTTP_201_CREATED)
+    
+class ListarGuiaDespachoView(generics.ListAPIView):
+
+    serializer_class = GuiaDespachoSerializer
+    permission_classes = [AllowAny]
+    queryset = GuiaDespacho.objects.all()
+
+    def get(self, request, format=None):
+
+        queryset = self.get_queryset()
+        serializer = self.get_serializer(queryset, many=True)
+
+        if not len(serializer.data):
+
+            return Response(
+                {
+                    "status": "No Content",
+                    "message": "No tenemos guias de despacho registradas"
+                }, status.HTTP_204_NO_CONTENT)
+
+        return Response({"status": "OK", "Guias Despacho": serializer.data}, status.HTTP_200_OK)
+    
+class ListarGuiaDespachoSucursalView(generics.ListAPIView):
+
+    serializer_class = GuiaDespachoSerializer
+    permission_classes = [AllowAny]
+
+    def get(self, request, id:int, format=None):
+
+        queryset = GuiaDespacho.objects.filter(id_sucursal=id)
+        serializer = self.get_serializer(queryset, many=True)
+
+        if not len(serializer.data):
+
+            return Response(
+                {
+                    "status": "No Content",
+                    "message": "No tenemos guias de despacho con esa sucursal"
+                }, status.HTTP_204_NO_CONTENT)
+
+        return Response({"status": "OK", "Guias Despacho": serializer.data}, status.HTTP_200_OK)
+
+class CrearGuiaDespachoView(generics.CreateAPIView):
+
+    serializer_class = CrearGuiaDespachoSerializer
+    permission_classes = [AllowAny]
+
+    def post(self, request, format=None):
+
+        serializer = self.get_serializer(data=request.data)
+
+        if not serializer.is_valid():
+
+            return Response(
+                {
+                    "status": "Bad Request", 
+                    "errors": serializer.errors
+                    }, status.HTTP_400_BAD_REQUEST)
+        
+        serializer.save()
+
+        return Response(
+            {
+                "status": "Created",
+                "data": serializer.data,
+                "message": "Se creo la guia de despacho con exito"
+                }, status.HTTP_201_CREATED)

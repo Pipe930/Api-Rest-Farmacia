@@ -1,5 +1,7 @@
 from rest_framework import serializers
 from .models import Proveedor, Bodeguero, GuiaDespacho, ProductoDespacho, Pedido, Factura
+# from apps.usuarios.models import Usuario
+# from farmacia.permission import generar_username
     
 class ProveedorSerializer(serializers.ModelSerializer):
 
@@ -19,11 +21,24 @@ class BodegueroSerializer(serializers.ModelSerializer):
     class Meta:
 
         model = Bodeguero
-        fields = "__all__"
+        fields = ["nombre", "apellido", "correo", "telefono", "run", "dv", "id_bodega"]
 
     def create(self, validated_data):
 
         bodeguero = Bodeguero.objects.create(**validated_data)
+
+        # username = generar_username(bodeguero.nombre, bodeguero.apellido)
+
+        # password = f"{bodeguero.nombre[0].upper()}{str(bodeguero.run)}{bodeguero.dv}"
+        # print(password)
+
+        # Usuario.objects.create_grocer(
+        #     username = username,
+        #     nombre = bodeguero.nombre,
+        #     apellido = bodeguero.apellido,
+        #     correo = bodeguero.correo,
+        #     password = password
+        # )
 
         return bodeguero
     
@@ -59,26 +74,49 @@ class ActualizarEstadoPedidoSerializer(serializers.ModelSerializer):
         instance.save()
 
         return instance
+    
+class ProductosGuiaDespachoSerializer(serializers.ModelSerializer):
+
+    id_producto = serializers.StringRelatedField()
+
+    class Meta:
+
+        model = ProductoDespacho
+        fields = ["cantidad", "id_producto"]
 
 class CrearGuiaDespachoSerializer(serializers.ModelSerializer):
 
+    productos = ProductosGuiaDespachoSerializer(many=True)
+
     class Meta:
 
         model = GuiaDespacho
-        fields = ["destino", "id_sucursal", "id_bodeguero"]
+        fields = ["destino", "id_sucursal", "id_bodeguero", "productos"]
 
     def create(self, validated_data):
 
+        productos_despacho = validated_data.pop("productos")
+
         guia_despacho = GuiaDespacho.objects.create(**validated_data)
 
-        return  guia_despacho
+        for diccionario in productos_despacho:
+
+            ProductoDespacho.objects.create(
+                cantidad = diccionario["cantidad"],
+                id_producto = diccionario["id_producto"],
+                id_guia_despacho = guia_despacho
+            )
+
+        return guia_despacho
 
 class GuiaDespachoSerializer(serializers.ModelSerializer):
+
+    productos = ProductosGuiaDespachoSerializer(many=True)
 
     class Meta:
 
         model = GuiaDespacho
-        fields = ["activo", "fecha_emicion", "estado", "destino", "id_sucursal"]
+        fields = ["activo", "fecha_emicion", "estado", "destino", "productos", "id_sucursal", "id_bodeguero"]
 
 class FacturaSerializer(serializers.ModelSerializer):
 

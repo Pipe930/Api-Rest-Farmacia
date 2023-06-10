@@ -28,6 +28,8 @@ class Bodeguero(models.Model):
     nombre = models.CharField(max_length=20)
     apellido = models.CharField(max_length=20)
     correo = models.EmailField(unique=True)
+    run = models.PositiveIntegerField(unique=True)
+    dv = models.CharField(max_length=1)
     telefono = models.PositiveIntegerField()
     id_bodega = models.ForeignKey(Bodega, on_delete=models.CASCADE)
 
@@ -50,6 +52,7 @@ CHOICES_GUIA_DESPACHO = [
 class GuiaDespacho(models.Model):
 
     id_guia_despacho = models.BigAutoField(primary_key=True)
+    code = models.UUIDField(default=uuid4, unique=True)
     activo = models.BooleanField(default=True)
     fecha_emicion = models.DateField(auto_now_add=True)
     estado = models.CharField(max_length=40, choices=CHOICES_GUIA_DESPACHO, default="En Preparacion")
@@ -71,7 +74,7 @@ class ProductoDespacho(models.Model):
     id_producto_despacho = models.BigAutoField(primary_key=True)
     cantidad = models.PositiveIntegerField()
     id_producto = models.ForeignKey(Producto, on_delete=models.CASCADE)
-    id_guia_despacho = models.ForeignKey(GuiaDespacho, on_delete=models.CASCADE)
+    id_guia_despacho = models.ForeignKey(GuiaDespacho, on_delete=models.CASCADE, related_name="productos")
 
     class Meta:
 

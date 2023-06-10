@@ -7,11 +7,12 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.parsers import JSONParser
 from .total_carrito import calcular_total_cantidad, calcular_total_productos, carrito_total
+from farmacia.permission import ClientePermission
 
 class CarritoUsuarioView(generics.RetrieveAPIView):
 
     serializer_class = CarritoSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, ClientePermission]
     authentication_classes = [TokenAuthentication]
 
     def get_object(self, idUser:int):
@@ -42,7 +43,7 @@ class CarritoUsuarioView(generics.RetrieveAPIView):
 class AgregarCarritoItemView(generics.CreateAPIView):
 
     serializer_class = AgregarCarritoItemSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, ClientePermission]
     parser_classes = [JSONParser]
     authentication_classes = [TokenAuthentication]
 
@@ -84,7 +85,7 @@ class RestarCarritoItemView(generics.CreateAPIView):
 
     serializer_class = RestarCarritoItemSerializer
     parser_classes = [JSONParser]
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, ClientePermission]
     authentication_classes = [TokenAuthentication]
 
     def post(self, request, *args, **kwargs):
@@ -102,7 +103,7 @@ class RestarCarritoItemView(generics.CreateAPIView):
 
 class LimpiarCarritoView(generics.DestroyAPIView):
 
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, ClientePermission]
     authentication_classes = [TokenAuthentication]
 
     def get_object(self, id:int):
@@ -144,7 +145,7 @@ class LimpiarCarritoView(generics.DestroyAPIView):
 
 class CrearCompraView(generics.CreateAPIView):
 
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, ClientePermission]
     authentication_classes = [TokenAuthentication]
     parser_classes = [JSONParser]
     serializer_class = CompraSerializer
@@ -168,7 +169,7 @@ class CancelarCompraView(generics.UpdateAPIView):
 
     serializer_class = CancelarCompraSerializer
     parser_classes = [JSONParser]
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, ClientePermission]
     authentication_classes = [TokenAuthentication]
 
     def get_object(self, id:int):
@@ -225,7 +226,7 @@ class ListarComprasView(generics.ListAPIView):
 
     serializer_class = CompraSerializer
     authentication_classes = [TokenAuthentication]
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, ClientePermission]
 
     def get(self, request, id:int, format=None):
 
@@ -241,7 +242,7 @@ class ListarComprasView(generics.ListAPIView):
 class DetalleCompraView(generics.RetrieveAPIView):
 
     serializer_class = CompraSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, ClientePermission]
     authentication_classes = [TokenAuthentication]
 
     def get_object(self, id:int):
@@ -291,7 +292,7 @@ class ListarPedidosClientesView(generics.ListAPIView):
 class DetallePedidoClienteView(generics.RetrieveAPIView):
 
     serializer_class = PedidoClienteSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, ClientePermission]
     authentication_classes = [TokenAuthentication]
 
     def get_object(self, id:int):
@@ -321,7 +322,7 @@ class DetallePedidoClienteView(generics.RetrieveAPIView):
 class CrearPedidoClienteView(generics.CreateAPIView):
 
     serializer_class = PedidoClienteSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, ClientePermission]
     authentication_classes = [TokenAuthentication]
     parser_classes = [JSONParser]
 
