@@ -1,7 +1,7 @@
 from rest_framework.response import Response
 from rest_framework import generics, status
-from .models import Sucursal, Empleado, Cargo
-from .serializer import EmpleadoSerializer, SucursalSerializer, CargoSerializer
+from .models import Sucursal, Empleado, Cargo, DetalleSucursal
+from .serializer import EmpleadoSerializer, SucursalSerializer, CargoSerializer, CargarProductosSucursalSerializer, ListarProductosSucursalSerializer
 from rest_framework.parsers import JSONParser
 from rest_framework.permissions import AllowAny
     
@@ -214,3 +214,40 @@ class DetalleCargoView(generics.RetrieveUpdateAPIView):
         
         serializer.save()
         return Response({"data":serializer.data, "message": "El cargo a sido actualizado con exito"}, status=status.HTTP_200_OK)
+    
+class CargarProductosSucursalView(generics.CreateAPIView):
+
+    serializer_class = CargarProductosSucursalSerializer
+    parser_classes = [JSONParser]
+
+    def post(self, request, format=None):
+
+        serializer = self.get_serializer(data=request.data)
+
+        if not serializer.is_valid():
+
+            return Response({"status": "Bad Request", "errors": serializer.errors}, status.HTTP_400_BAD_REQUEST)
+        
+        serializer.save()
+
+        return Response(
+            {
+                "status": "Created", 
+                "data": serializer.data,
+                "message": "Se cargo los productos a la sucursal correctamente"
+                }, status.HTTP_201_CREATED)
+    
+class ListarProductosSucursalView(generics.ListAPIView):
+
+    serializer_class = ListarProductosSucursalSerializer
+
+    def get(self, request, id:int):
+
+        queryset = DetalleSucursal.objects.filter(id_sucursal=id)
+        serializer = self.get_serializer(queryset, many=True)
+
+        if not len(serializer.data):
+
+            return Response({"status": "No Content", "message": "No tenemos productos en esta sucursal"}, status.HTTP_204_NO_CONTENT)
+
+        return Response({"status": "OK", "data": serializer.data}, status.HTTP_200_OK)

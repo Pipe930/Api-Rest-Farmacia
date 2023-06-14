@@ -6,6 +6,11 @@ urlsSucursales = [
     path("sucursal/<int:id>", views.DetalleSucursalView.as_view())
 ]
 
+urlsDetalleSucursal = [
+    path("created", views.CargarProductosSucursalView.as_view()),
+    path("sucursal/<int:id>", views.ListarProductosSucursalView.as_view())
+]
+
 urlsEmpleados = [
     path("", views.ListarEmpleadosView.as_view()),
     path("empleado/<int:id>", views.DetalleEmpleadoView.as_view())

@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from .models import Proveedor, Bodeguero, GuiaDespacho, ProductoDespacho, Pedido, Factura
+from apps.productos.models import Producto
 # from apps.usuarios.models import Usuario
 # from farmacia.permission import generar_username
     
@@ -53,13 +54,7 @@ class CrearPedidoSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Pedido
-        fields = ["id_bodeguero", "id_factura", "destino"] 
-
-    def create(self, validated_data):
-
-        pedido = Pedido.objects.create(**validated_data)
-
-        return pedido
+        fields = ["destino"] 
     
 class ActualizarEstadoPedidoSerializer(serializers.ModelSerializer):
 
@@ -133,6 +128,16 @@ class GuiaDespachoSerializer(serializers.ModelSerializer):
         model = GuiaDespacho
         fields = ["activo", "fecha_emicion", "estado", "destino", "productos", "id_sucursal", "id_bodeguero"]
 
+class FacturaProductosSerializer(serializers.ModelSerializer):
+
+    cantidad = serializers.IntegerField()
+    nombre = serializers.CharField(validators=[])
+
+    class Meta:
+
+        model = Producto
+        fields = ["nombre", "cantidad"]
+
 class FacturaSerializer(serializers.ModelSerializer):
 
     class Meta:
@@ -142,13 +147,30 @@ class FacturaSerializer(serializers.ModelSerializer):
 
 class CrearFacturaSerialzer(serializers.ModelSerializer):
 
+    pedido = CrearPedidoSerializer(many=False)
+    productos = FacturaProductosSerializer(many=True)
+
     class Meta:
 
         model = Factura
-        fields = ["productos", "precio_total", "id_bodeguero", "id_proveedor"]
+        fields = ["productos", "precio_total", "id_bodeguero", "id_proveedor", "pedido"]
+
+    def validate(self, attrs):
+
+        if attrs.get("productos") == []:
+            raise serializers.ValidationError("La lista no puede quedar vacia")
+
+        return attrs
 
     def create(self, validated_data):
 
-        factura = Factura.objects.create()
+        destino = validated_data["pedido"]
+
+        factura = Factura.objects.create(**validated_data)
+        Pedido.objects.create(
+            destino = destino.get("destino"),
+            id_factura = factura,
+            id_bodeguero = validated_data["id_bodeguero"]
+        )
 
         return factura

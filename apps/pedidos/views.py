@@ -1,7 +1,7 @@
 from rest_framework.response import Response
 from rest_framework import generics, status
 from .models import Pedido, Proveedor, GuiaDespacho, Bodeguero, Factura
-from .serializer import PedidoSerializer, BodegueroSerializer, ProveedorSerializer, GuiaDespachoSerializer, CrearPedidoSerializer, ActualizarEstadoPedidoSerializer, CrearGuiaDespachoSerializer, CrearFacturaSerialzer, FacturaSerializer, ActualizarEstadoGuiaDespachoSerializer
+from .serializer import PedidoSerializer, BodegueroSerializer, ProveedorSerializer, GuiaDespachoSerializer, ActualizarEstadoPedidoSerializer, CrearGuiaDespachoSerializer, CrearFacturaSerialzer, FacturaSerializer, ActualizarEstadoGuiaDespachoSerializer
 from rest_framework.parsers import JSONParser
 from rest_framework.permissions import AllowAny
 
@@ -125,41 +125,6 @@ class ListarPedidosFacturaView(generics.ListAPIView):
                     }, status.HTTP_204_NO_CONTENT)
 
         return Response({"status":"OK","Bodegueros": serializer.data}, status.HTTP_200_OK)
-    
-class CrearPedidoView(generics.CreateAPIView):
-
-    serializer_class = CrearPedidoSerializer
-
-    def post(self, request, *args, **kwargs):
-
-        serializer = self.get_serializer(data=request.data)
-
-        if not serializer.is_valid():
-
-            return Response(
-                {
-                    "status": "Bad Request", 
-                    "errors": serializer.errors
-                    }, status.HTTP_400_BAD_REQUEST)
-        
-        productos = request.data["productos"]
-
-        if productos == {}:
-            return Response({"message": "El json no puede estar vacio"}, status.HTTP_400_BAD_REQUEST)
-        
-        try:
-            productos["productos"]
-        except KeyError:
-            return Response({"message": "El json no es valido"}, status.HTTP_400_BAD_REQUEST)
-
-        serializer.save()
-
-        return Response(
-            {
-                "data": serializer.data,
-                    "status": "Created", 
-                    "message": "El pedido se creo con exito"
-                    }, status.HTTP_201_CREATED)
     
 class ActualizarEstadoPedidoView(generics.UpdateAPIView):
 

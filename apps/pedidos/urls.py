@@ -14,7 +14,6 @@ urlsProveedor = [
 urlsPedido = [
     path("", views.ListarPedidosView.as_view()),
     path("factura/<int:id>", views.ListarPedidosFacturaView.as_view()),
-    path("created", views.CrearPedidoView.as_view()),
     path("update/estado/<int:id>", views.ActualizarEstadoPedidoView.as_view())
 ]
 

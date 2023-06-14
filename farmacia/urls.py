@@ -3,7 +3,7 @@ from django.contrib import admin
 from django.urls import path, include
 
 from apps.productos.urls import urlsProductos, urlsCategorias, urlsOfertas, urlsBodegas, urlsStockBodega, urlsSoapProductos
-from apps.sucursales.urls import urlsSucursales, urlsEmpleados, urlsCargos
+from apps.sucursales.urls import urlsSucursales, urlsEmpleados, urlsCargos, urlsDetalleSucursal
 from apps.usuarios.urls import urlsUsuarios
 from apps.ventas.urls import urlsCompras, urlsCarritos, urlsPedidosCliente, urlsTransbank
 from apps.pais.urls import urlsComunas, urlsProvincias, urlsRegiones
@@ -18,6 +18,7 @@ urlpatterns = [
     path("provincias/", include(urlsProvincias)),
     path("comunas/", include(urlsComunas)),
     path("sucursales/", include(urlsSucursales)),
+    path("detalle-sucursal/", include(urlsDetalleSucursal)),
     path("empleados/", include(urlsEmpleados)),
     path("usuario/", include(urlsUsuarios)),
     path("carrito/", include(urlsCarritos)),

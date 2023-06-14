@@ -108,10 +108,10 @@ def set_cantidad_total(sender, instance, *args, **kwargs):
 
     cantidad_total = 0
 
-    for producto in productos["productos"]:
-        cantidad_total += producto["cantidad"]
+    for producto in productos:
+        cantidad_total += producto.get('cantidad')
 
-    instance.cantidad_total = cantidad_total
+    instance.productos_total = cantidad_total
 
 pre_save.connect(set_cantidad_total, sender = Factura)
     
@@ -132,7 +132,7 @@ class Pedido(models.Model):
     estado = models.CharField(max_length=40, choices=CHOICES_PEDIDO, default="En Preparacion")
     destino = models.CharField(max_length=255)
     id_bodeguero = models.ForeignKey(Bodeguero, on_delete=models.CASCADE)
-    id_factura = models.ForeignKey(Factura, on_delete=models.CASCADE)
+    id_factura = models.OneToOneField(Factura, on_delete=models.CASCADE)
 
     class Meta:
 

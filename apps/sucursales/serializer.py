@@ -64,3 +64,44 @@ class CargoSerializer(serializers.ModelSerializer):
         instance.save()
 
         return instance
+
+class CargarProductosSucursalSerializer(serializers.ModelSerializer):
+
+    class Meta:
+
+        model = DetalleSucursal
+        fields = ["id_productos", "id_sucursal", "cantidad"]
+
+
+    def save(self, **kwargs):
+
+        id_producto = self.validated_data["id_productos"]
+        id_sucursal = self.validated_data["id_sucursal"]
+        cantidad = self.validated_data["cantidad"]
+
+        try:
+
+            productos_sucursal = DetalleSucursal.objects.get(id_sucursal_id=id_sucursal, id_productos_id=id_producto)
+
+            productos_sucursal.cantidad += cantidad
+
+            productos_sucursal.save()
+
+            self.instance = productos_sucursal
+
+        except DetalleSucursal.DoesNotExist:
+
+            print("hola mundo")
+
+            self.instance = DetalleSucursal.objects.create(**self.validated_data)
+
+        return self.instance
+    
+class ListarProductosSucursalSerializer(serializers.ModelSerializer):
+
+    id_productos = serializers.StringRelatedField()
+
+    class Meta:
+
+        model = DetalleSucursal
+        fields = ["id_sucursal", "id_productos", "cantidad"]
