@@ -1,11 +1,16 @@
 from rest_framework.response import Response
 from rest_framework import generics, status
 from .models import Region, Provincia, Comuna
-from .serializer import RegionSerializer, ProvinciaSerializer, ComunaSerializer, CrearComunaSerializer, CrearProvinciaSerializer
+from .serializer import (
+    RegionSerializer, 
+    ProvinciaSerializer, 
+    ComunaSerializer, 
+    CrearComunaSerializer, 
+    CrearProvinciaSerializer)
 from rest_framework.parsers import JSONParser
 from rest_framework.permissions import AllowAny
 
-# Creacion de las Vistas
+# --------------------- REGIONES -----------------------------
 
 # Vista listar todas las regiones registradas
 class ListarRegionesView(generics.ListCreateAPIView):
@@ -52,6 +57,8 @@ class ListarRegionesView(generics.ListCreateAPIView):
                 "status": "Created", 
                 "message": "Se creo la region con exito"
                 }, status.HTTP_201_CREATED)
+
+# --------------------- PROVINCIAS -----------------------------
 
 # Vista de listar todas las provincias registradas
 class ListarProvinciasView(generics.ListAPIView):
@@ -127,6 +134,8 @@ class CrearProvinciaView(generics.CreateAPIView):
                 "status": "Created", 
                 "message": "Se creo la provincia con exito"
                 }, status.HTTP_201_CREATED)
+
+# --------------------- COMUNAS -----------------------------
 
 # Vista de listar todas las comunas registradas
 class ListarComunasView(generics.ListAPIView):

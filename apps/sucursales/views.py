@@ -1,7 +1,12 @@
 from rest_framework.response import Response
 from rest_framework import generics, status
 from .models import Sucursal, Empleado, Cargo, DetalleSucursal
-from .serializer import EmpleadoSerializer, SucursalSerializer, CargoSerializer, CargarProductosSucursalSerializer, ListarProductosSucursalSerializer
+from .serializer import (
+    EmpleadoSerializer, 
+    SucursalSerializer, 
+    CargoSerializer, 
+    CargarProductosSucursalSerializer,
+    ListarProductosSucursalSerializer)
 from rest_framework.parsers import JSONParser
 from rest_framework.permissions import AllowAny
     
@@ -219,6 +224,7 @@ class CargarProductosSucursalView(generics.CreateAPIView):
 
     serializer_class = CargarProductosSucursalSerializer
     parser_classes = [JSONParser]
+    permission_classes = [AllowAny]
 
     def post(self, request, format=None):
 
@@ -240,6 +246,7 @@ class CargarProductosSucursalView(generics.CreateAPIView):
 class ListarProductosSucursalView(generics.ListAPIView):
 
     serializer_class = ListarProductosSucursalSerializer
+    permission_classes = [AllowAny]
 
     def get(self, request, id:int):
 

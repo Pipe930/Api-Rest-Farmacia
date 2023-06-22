@@ -35,7 +35,21 @@ class CompraSerializer(serializers.ModelSerializer):
     class Meta:
 
         model = Compra
-        fields = "__all__"
+        fields = ["precio_total", "productos", "cantidad_productos", "id_usuario", "id_carrito"]
+
+    def validate(self, attrs):
+
+        productos = attrs.get("productos")
+
+        if productos == {}:
+            raise serializers.ValidationError("El json no puede quedar vacio")
+        
+        try:
+            productos["items"]
+        except ValueError:
+            raise serializers.ValidationError("El formato del json no es el correcto")
+
+        return attrs
 
     def create(self, validated_data):
 

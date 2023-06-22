@@ -106,15 +106,33 @@ def set_cantidad_total(sender, instance, *args, **kwargs):
 
     productos = instance.productos
 
+    productos = productos["productos"]
+
     cantidad_total = 0
 
     for producto in productos:
-        cantidad_total += producto.get('cantidad')
+        cantidad_total += producto.get("cantidad")
 
     instance.productos_total = cantidad_total
 
+
 pre_save.connect(set_cantidad_total, sender = Factura)
-    
+
+def set_precio_total(sender, instance, *args, **kwargs):
+
+    productos = instance.productos
+
+    productos = productos["productos"]
+
+    precio_total = 0
+
+    for producto in productos:
+
+        precio_total += producto.get("precio")
+
+    instance.precio_total = precio_total
+
+pre_save.connect(set_precio_total, sender = Factura)
 
 CHOICES_PEDIDO = [
     ("En Preparacion", "En Preparacion"),

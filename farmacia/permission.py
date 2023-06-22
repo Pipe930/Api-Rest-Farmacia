@@ -19,7 +19,7 @@ class ClientePermission(BasePermission):
 class AdministradorPermission(BasePermission):
     def has_permission(self, request, view):
         # Verifica si el usuario tiene el rol de "administrador"
-        return request.user.rol == 'cliente'
+        return request.user.rol == 'administrador'
 
 def generar_username(nombre, apellido):
     base_username = f"{nombre.lower()}.{apellido.lower()}"

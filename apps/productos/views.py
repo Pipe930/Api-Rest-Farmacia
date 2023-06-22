@@ -1,10 +1,27 @@
 from rest_framework.response import Response
 from rest_framework import generics, status, filters
-from .models import Producto, Categoria, Oferta, Bodega, DetalleBodega
-from .serializer import OfertaSerializer,ProductoSerializer, CategoriaSerializer, BodegaSerialzer, CrearProductoSerializer, ActualizarProductoStockSerializer, StockBodegaSerializer, CrearStockBodegaSerializer, ActualizarOfertaProductoSerializer
+from .models import Producto, Categoria, Oferta, Bodega, DetalleBodega, Merma
+from rest_framework.authentication import TokenAuthentication
+from .serializer import ( 
+    OfertaSerializer, 
+    ProductoSerializer, 
+    CategoriaSerializer, 
+    BodegaSerialzer, 
+    CrearProductoSerializer, 
+    ActualizarProductoStockSerializer, 
+    StockBodegaSerializer, 
+    CrearStockBodegaSerializer, 
+    ActualizarOfertaProductoSerializer)
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.parsers import JSONParser
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticated
+from farmacia.permission import AdministradorPermission, BodegueroPermission
+import itertools
+from random import randint
+from statistics import mean
+from reportlab.lib.pagesizes import A4
+from reportlab.pdfgen import canvas
+from django.http import HttpResponse
 
 class ListarProductosView(generics.ListAPIView):
 
@@ -87,7 +104,7 @@ class BuscarProductoView(generics.ListAPIView):
 class CrearProductoView(generics.CreateAPIView):
 
     serializer_class = CrearProductoSerializer
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated, AdministradorPermission]
     parser_classes = [JSONParser]
 
     def post(self, request, format=None):
@@ -144,7 +161,8 @@ class DetalleProductoView(generics.RetrieveAPIView):
 class ActualizarStockProductoView(generics.UpdateAPIView):
 
     serializer_class = ActualizarProductoStockSerializer
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated, AdministradorPermission]
+    authentication_classes = [TokenAuthentication]
     parser_classes = [JSONParser]
 
     def get_object(self, id:int):
@@ -190,7 +208,8 @@ class ActualizarOfertaProductoView(generics.UpdateAPIView):
 
     serializer_class = ActualizarOfertaProductoSerializer
     parser_classes = [JSONParser]
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated, AdministradorPermission]
+    authentication_classes = [TokenAuthentication]
 
     def get_object(self, id:int):
 
@@ -521,3 +540,54 @@ class ListarStockBodegasFilterProductoView(generics.ListAPIView):
             stock_total += producto.stock
 
         return Response({"status": "OK", "stock_total":stock_total, "Productos":serializer.data}, status=status.HTTP_200_OK)
+
+
+def grouper(iterable, n):
+    args = [iter(iterable)] * n
+    return itertools.zip_longest(*args)
+
+class GeneratePDFView(generics.ListAPIView):
+    
+
+    def get(self, request):
+        # Obtener los datos de la tabla de la base de datos
+        mermas = Merma.objects.all()
+
+        # Crear un objeto canvas para generar el PDF
+        response = HttpResponse({"message": "PDF generado"}, content_type='application/pdf')
+        response['Content-Disposition'] = 'attachment; filename="archivo.pdf"'
+        
+        p = canvas.Canvas(response)
+
+        data = [("PRODUCTO", "FECHA EMICION", "CANT. PRODUCTOS", "UBICACION")]
+
+        p.setFillColorRGB(0.161, 0.255, 0.126)
+        p.drawString(220, 820, "Documento de Merma")
+        # p.rect(50, h - 150, 50, 50, fill=True)
+
+        for i in mermas:
+            exams = [randint(0, 10) for _ in range(3)]
+            data.append((i.id_producto, i.fecha_emicion, i.cantidad_producto, i.ubicacion))
+
+        w, h = A4
+        max_rows_per_page = 45
+        # Margin.
+        x_offset = 50
+        y_offset = 50
+        # Space between rows.
+        padding = 15
+        
+        xlist = [x + x_offset for x in [0, 80, 180, 300, 400]]
+        ylist = [h - y_offset - i*padding for i in range(max_rows_per_page + 1)]
+        
+        for rows in grouper(data, max_rows_per_page):
+            rows = tuple(filter(bool, rows))
+            p.grid(xlist, ylist[:len(rows) + 1])
+            for y, row in zip(ylist[:-1], rows):
+                for x, cell in zip(xlist, row):
+                    p.drawString(x + 2, y - padding + 3, str(cell))
+            p.showPage()
+        
+        p.save()
+
+        return response

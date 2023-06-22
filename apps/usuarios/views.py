@@ -65,12 +65,14 @@ class LoginView(ObtainAuthToken):
                         login(request=request, user=user)
 
                         userJson = {
+                            "status": "OK",
                             "token": token.key,
                             "username": user.username,
                             "id_usuario": user.id,
                             "activate": user.is_active,
                             "staff": user.is_staff,
-                            "id_carrito": carrito.id_carrito
+                            "id_carrito": carrito.id_carrito,
+                            "message": "Se inicio sesion correctamente. Bienvenido " + user.username
                         }
 
                         return Response(userJson, status.HTTP_200_OK)
@@ -79,12 +81,14 @@ class LoginView(ObtainAuthToken):
                     token = Token.objects.create(user=user)
 
                     userJson = {
+                        "status": "OK",
                         "token": token.key,
                         "username": user.username,
                         "user_id": user.id,
                         "activate": user.is_active,
                         "staff": user.is_staff,
-                        "id_carrito": carrito.id_carrito
+                        "id_carrito": carrito.id_carrito,
+                        "message": "Se inicio sesion correctamente. Bienvenido " + user.username
                     }
 
                     return Response(userJson, status.HTTP_200_OK)

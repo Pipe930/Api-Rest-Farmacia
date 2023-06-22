@@ -73,6 +73,13 @@ class CargarProductosSucursalSerializer(serializers.ModelSerializer):
         fields = ["id_productos", "id_sucursal", "cantidad"]
 
 
+    def validate(self, attrs):
+
+        if attrs.get("cantidad") == 0:
+            raise serializers.ValidationError("La cantidad tiene que ser mayor a 0")
+
+        return attrs
+
     def save(self, **kwargs):
 
         id_producto = self.validated_data["id_productos"]
@@ -90,8 +97,6 @@ class CargarProductosSucursalSerializer(serializers.ModelSerializer):
             self.instance = productos_sucursal
 
         except DetalleSucursal.DoesNotExist:
-
-            print("hola mundo")
 
             self.instance = DetalleSucursal.objects.create(**self.validated_data)
 

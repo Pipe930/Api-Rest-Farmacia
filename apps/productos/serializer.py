@@ -40,11 +40,10 @@ class ActualizarProductoStockSerializer(serializers.ModelSerializer):
     class Meta:
 
         model = Producto
-        fields = ["precio", "stock"]
+        fields = ["stock"]
 
     def update(self, instance, validated_data):
 
-        instance.precio = validated_data.get("precio", instance.precio)
         instance.stock = validated_data.get("stock", instance.stock)
         instance.disponible = True
 

@@ -35,3 +35,6 @@ urlpatterns = [
     path("guias-despacho/", include(urlsGuiaDespacho)),
     path("transbank/", include(urlsTransbank))
 ]
+
+handler404 = ""
+handler500 = ""

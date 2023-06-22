@@ -11,7 +11,8 @@ urlsProductos = [
     path("producto/<int:id>", views.DetalleProductoView.as_view()),
     path("update-stock/<int:id>", views.ActualizarStockProductoView.as_view()),
     path("producto", views.BuscarProductoView.as_view()),
-    path("update-oferta/<int:id>", views.ActualizarOfertaProductoView.as_view())
+    path("update-oferta/<int:id>", views.ActualizarOfertaProductoView.as_view()),
+    path("merma/created", views.GeneratePDFView.as_view()),
 ]
 
 urlsSoapProductos = [

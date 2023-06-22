@@ -1,10 +1,22 @@
 from rest_framework.response import Response
 from rest_framework import generics, status
 from .models import Pedido, Proveedor, GuiaDespacho, Bodeguero, Factura
-from .serializer import PedidoSerializer, BodegueroSerializer, ProveedorSerializer, GuiaDespachoSerializer, ActualizarEstadoPedidoSerializer, CrearGuiaDespachoSerializer, CrearFacturaSerialzer, FacturaSerializer, ActualizarEstadoGuiaDespachoSerializer
+from .serializer import (
+    PedidoSerializer,
+    BodegueroSerializer, 
+    ProveedorSerializer, 
+    GuiaDespachoSerializer, 
+    ActualizarEstadoPedidoSerializer, 
+    CrearGuiaDespachoSerializer, 
+    CrearFacturaSerializer, 
+    FacturaSerializer, 
+    ActualizarEstadoGuiaDespachoSerializer)
 from rest_framework.parsers import JSONParser
 from rest_framework.permissions import AllowAny
 
+# --------------------- BODEGUEROS -----------------------------
+
+# Vista para listar todos los bodegueros registrados
 class ListarBodeguerosView(generics.ListAPIView):
 
     serializer_class = BodegueroSerializer
@@ -24,7 +36,8 @@ class ListarBodeguerosView(generics.ListAPIView):
                     }, status.HTTP_204_NO_CONTENT)
 
         return Response({"status":"OK","Bodegueros": serializer.data}, status.HTTP_200_OK)
-    
+
+# Vista para crear un bodeguero
 class CrearBodegueroView(generics.CreateAPIView):
 
     serializer_class = BodegueroSerializer
@@ -45,7 +58,10 @@ class CrearBodegueroView(generics.CreateAPIView):
         serializer.save()
 
         return Response({"data": serializer.data, "status": "Created", "message": "Se creo el bodeguero con exito"}, status.HTTP_201_CREATED)
-    
+
+# --------------------- PROVEEDORES -----------------------------
+
+# Vista para listar todos los proveedores registrados
 class ListarProveedoresView(generics.ListAPIView):
 
     serializer_class = ProveedorSerializer
@@ -65,7 +81,8 @@ class ListarProveedoresView(generics.ListAPIView):
                     }, status.HTTP_204_NO_CONTENT)
 
         return Response({"status":"OK","Proveedores": serializer.data}, status.HTTP_200_OK)
-    
+
+# Vista para crear un proveedor
 class CrearProveedorView(generics.ListAPIView):
 
     serializer_class = ProveedorSerializer
@@ -86,7 +103,10 @@ class CrearProveedorView(generics.ListAPIView):
         serializer.save()
 
         return Response({"data": serializer.data, "status": "Created", "message": "Se creo el proveedor con exito"}, status.HTTP_201_CREATED)
-    
+
+# --------------------- PEDIDOS -----------------------------
+
+# Vista para listar todos los pedidos
 class ListarPedidosView(generics.ListAPIView):
 
     serializer_class = PedidoSerializer
@@ -106,7 +126,8 @@ class ListarPedidosView(generics.ListAPIView):
                     }, status.HTTP_204_NO_CONTENT)
 
         return Response({"status":"OK","Bodegueros": serializer.data}, status.HTTP_200_OK)
-    
+
+# Vista para listar los pedidos por factura
 class ListarPedidosFacturaView(generics.ListAPIView):
 
     serializer_class = PedidoSerializer
@@ -125,7 +146,8 @@ class ListarPedidosFacturaView(generics.ListAPIView):
                     }, status.HTTP_204_NO_CONTENT)
 
         return Response({"status":"OK","Bodegueros": serializer.data}, status.HTTP_200_OK)
-    
+
+# Vista para actualizar el estado de un pedido
 class ActualizarEstadoPedidoView(generics.UpdateAPIView):
 
     serializer_class = ActualizarEstadoPedidoSerializer
@@ -150,6 +172,7 @@ class ActualizarEstadoPedidoView(generics.UpdateAPIView):
                     "message": "Pedido no Encontrado"
                     }, status=status.HTTP_404_NOT_FOUND)
         
+        # Se hace una pequeña validacion para que el estado sea obligatorio ponerlo
         try:
             request.data["estado"]
         except KeyError:
@@ -177,6 +200,9 @@ class ActualizarEstadoPedidoView(generics.UpdateAPIView):
                 "message": "El estado del pedido a sido actualizado con exito"
                 }, status.HTTP_200_OK)
 
+# --------------------- FACTURAS -----------------------------
+
+# Vista para listar todas las factura registradas
 class ListarFacturasView(generics.ListAPIView):
 
     serializer_class = FacturaSerializer
@@ -198,6 +224,7 @@ class ListarFacturasView(generics.ListAPIView):
 
         return Response({"status": "OK", "Facturas": serializer.data}, status.HTTP_200_OK)
 
+# Vista para listar las facturas por proveedor
 class FacturasProveedorView(generics.ListAPIView):
 
     serializer_class = FacturaSerializer
@@ -218,9 +245,10 @@ class FacturasProveedorView(generics.ListAPIView):
 
         return Response({"status": "OK", "Facturas": serializer.data}, status.HTTP_200_OK)
 
+# Vista para crear una factura
 class CrearFacturaView(generics.CreateAPIView):
 
-    serializer_class = CrearFacturaSerialzer
+    serializer_class = CrearFacturaSerializer
     permission_classes = [AllowAny]
     parser_classes = [JSONParser]
 
@@ -240,7 +268,10 @@ class CrearFacturaView(generics.CreateAPIView):
                 "message": "Se creo la factura con exito",
                 "status": "Created"
             }, status.HTTP_201_CREATED)
-    
+
+# --------------------- GUIAS DESPACHO -----------------------------
+
+# Vista para lista todas las guias de despacho registradas
 class ListarGuiaDespachoView(generics.ListAPIView):
 
     serializer_class = GuiaDespachoSerializer
@@ -261,7 +292,8 @@ class ListarGuiaDespachoView(generics.ListAPIView):
                 }, status.HTTP_204_NO_CONTENT)
 
         return Response({"status": "OK", "Guias Despacho": serializer.data}, status.HTTP_200_OK)
-    
+
+# Vista para listar guias de despacho por sucursal
 class ListarGuiaDespachoSucursalView(generics.ListAPIView):
 
     serializer_class = GuiaDespachoSerializer
@@ -282,6 +314,7 @@ class ListarGuiaDespachoSucursalView(generics.ListAPIView):
 
         return Response({"status": "OK", "Guias Despacho": serializer.data}, status.HTTP_200_OK)
 
+# Vista para crear una guia despacho
 class CrearGuiaDespachoView(generics.CreateAPIView):
 
     serializer_class = CrearGuiaDespachoSerializer
@@ -308,6 +341,7 @@ class CrearGuiaDespachoView(generics.CreateAPIView):
                 "message": "Se creo la guia de despacho con exito"
                 }, status.HTTP_201_CREATED)
 
+# Vista para actualizar el estado de una guia de despacho
 class ActualizarEstadoGuiaDespachoView(generics.UpdateAPIView):
 
     serializer_class = ActualizarEstadoGuiaDespachoSerializer

@@ -2,7 +2,15 @@ from rest_framework import status, generics
 from rest_framework.response import Response
 from .models import Carrito, Items, Compra, PedidoCliente
 from apps.productos.models import Producto
-from .serializer import CarritoSerializer, AgregarCarritoItemSerializer, CancelarCompraSerializer, CompraSerializer, PedidoClienteSerializer, RestarCarritoItemSerializer, CrearTransbankSerializer, CancelarTransbankSerializer
+from .serializer import (
+    CarritoSerializer, 
+    AgregarCarritoItemSerializer, 
+    CancelarCompraSerializer, 
+    CompraSerializer,
+    PedidoClienteSerializer, 
+    RestarCarritoItemSerializer, 
+    CrearTransbankSerializer, 
+    CancelarTransbankSerializer)
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.parsers import JSONParser
@@ -383,7 +391,7 @@ class ConfirmarTransbankView(generics.RetrieveAPIView):
 
         url = f"https://webpay3gint.transbank.cl/rswebpaytransaction/api/webpay/v1.2/transactions/{token}"
 
-        response = requests.get(url, headers=headers)
+        response = requests.put(url, headers=headers)
 
         print(response.json())
 
