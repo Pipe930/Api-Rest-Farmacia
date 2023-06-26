@@ -37,6 +37,36 @@ class ListarBodeguerosView(generics.ListAPIView):
 
         return Response({"status":"OK","Bodegueros": serializer.data}, status.HTTP_200_OK)
 
+# Vista para obtener un solo bodeguero
+class DetalleBodegueroView(generics.RetrieveAPIView):
+
+    serializer_class = BodegueroSerializer
+    permission_classes = [AllowAny]
+
+    def get_object(self, id:int):
+
+        try:
+            bodeguero = Bodeguero.objects.get(id_factura=id)
+        except Bodeguero.DoesNotExist:
+            return None
+
+        return bodeguero
+    
+    def get(self, request, id:int, format=None):
+
+        bodeguero = self.get_object(id)
+
+        if bodeguero is None:
+
+            return Response({
+                "status": "Not Found",
+                "message": "Bodeguero no encontrado"
+            }, status.HTTP_404_NOT_FOUND)
+
+        serializer = self.get_serializer(bodeguero)
+
+        return Response({"status": "OK", "Bodeguero": serializer.data}, status.HTTP_200_OK)
+
 # Vista para crear un bodeguero
 class CrearBodegueroView(generics.CreateAPIView):
 
@@ -81,6 +111,36 @@ class ListarProveedoresView(generics.ListAPIView):
                     }, status.HTTP_204_NO_CONTENT)
 
         return Response({"status":"OK","Proveedores": serializer.data}, status.HTTP_200_OK)
+    
+class DetalleProveedorView(generics.RetrieveAPIView):
+
+    serializer_class = ProveedorSerializer
+    permission_classes = [AllowAny]
+
+    def get_object(self, id:int):
+
+        try:
+            proveedor = Proveedor.objects.get(id_factura=id)
+        except Proveedor.DoesNotExist:
+            return None
+
+        return proveedor
+    
+    def get(self, request, id:int, format=None):
+
+        proveedor = self.get_object(id)
+
+        if proveedor is None:
+
+            return Response({
+                "status": "Not Found",
+                "message": "Proveedor no encontrado"
+            }, status.HTTP_404_NOT_FOUND)
+
+        serializer = self.get_serializer(proveedor)
+
+        return Response({"status": "OK", "Proveedor": serializer.data}, status.HTTP_200_OK)
+
 
 # Vista para crear un proveedor
 class CrearProveedorView(generics.ListAPIView):
@@ -125,7 +185,7 @@ class ListarPedidosView(generics.ListAPIView):
                     "message": "No tenemos pedidos registrados"
                     }, status.HTTP_204_NO_CONTENT)
 
-        return Response({"status":"OK","Bodegueros": serializer.data}, status.HTTP_200_OK)
+        return Response({"status":"OK","Pedidos": serializer.data}, status.HTTP_200_OK)
 
 # Vista para listar los pedidos por factura
 class ListarPedidosFacturaView(generics.ListAPIView):
@@ -145,7 +205,37 @@ class ListarPedidosFacturaView(generics.ListAPIView):
                     "message": "No tenemos pedidos con esa factura"
                     }, status.HTTP_204_NO_CONTENT)
 
-        return Response({"status":"OK","Bodegueros": serializer.data}, status.HTTP_200_OK)
+        return Response({"status":"OK","Pedidos": serializer.data}, status.HTTP_200_OK)
+
+# Vista para obtener un solo pedido
+class DetallePedidoView(generics.RetrieveAPIView):
+
+    serializer_class = PedidoSerializer
+    permission_classes = [AllowAny]
+
+    def get_object(self, id:int):
+
+        try:
+            pedido = Pedido.objects.get(id_factura=id)
+        except Pedido.DoesNotExist:
+            return None
+
+        return pedido
+    
+    def get(self, request, id:int, format=None):
+
+        pedido = self.get_object(id)
+
+        if pedido is None:
+
+            return Response({
+                "status": "Not Found",
+                "message": "Pedido no encontrado"
+            }, status.HTTP_404_NOT_FOUND)
+
+        serializer = self.get_serializer(pedido)
+
+        return Response({"status": "OK", "Pedido": serializer.data}, status.HTTP_200_OK)
 
 # Vista para actualizar el estado de un pedido
 class ActualizarEstadoPedidoView(generics.UpdateAPIView):
@@ -245,6 +335,35 @@ class FacturasProveedorView(generics.ListAPIView):
 
         return Response({"status": "OK", "Facturas": serializer.data}, status.HTTP_200_OK)
 
+class DetalleFacturaView(generics.RetrieveAPIView):
+
+    serializer_class = FacturaSerializer
+    permission_classes = [AllowAny]
+
+    def get_object(self, id:int):
+
+        try:
+            factura = Factura.objects.get(id_factura=id)
+        except Factura.DoesNotExist:
+            return None
+
+        return factura
+    
+    def get(self, request, id:int, format=None):
+
+        factura = self.get_object(id)
+
+        if factura is None:
+
+            return Response({
+                "status": "Not Found",
+                "message": "Factura no encontrada"
+            }, status.HTTP_404_NOT_FOUND)
+
+        serializer = self.get_serializer(factura)
+
+        return Response({"status": "OK", "Factura": serializer.data}, status.HTTP_200_OK)
+
 # Vista para crear una factura
 class CrearFacturaView(generics.CreateAPIView):
 
@@ -313,6 +432,36 @@ class ListarGuiaDespachoSucursalView(generics.ListAPIView):
                 }, status.HTTP_204_NO_CONTENT)
 
         return Response({"status": "OK", "Guias Despacho": serializer.data}, status.HTTP_200_OK)
+
+# Vista para obtener una sola guia de despacho
+class DetalleGuiaDespachoView(generics.RetrieveAPIView):
+
+    serializer_class = GuiaDespachoSerializer
+    permission_classes = [AllowAny]
+
+    def get_object(self, id:int):
+
+        try:
+            guia_despacho = GuiaDespacho.objects.get(id_factura=id)
+        except GuiaDespacho.DoesNotExist:
+            return None
+
+        return guia_despacho
+    
+    def get(self, request, id:int, format=None):
+
+        guia_despacho = self.get_object(id)
+
+        if guia_despacho is None:
+
+            return Response({
+                "status": "Not Found",
+                "message": "Guia de Despacho no encontrada"
+            }, status.HTTP_404_NOT_FOUND)
+
+        serializer = self.get_serializer(guia_despacho)
+
+        return Response({"status": "OK", "Guia Despacho": serializer.data}, status.HTTP_200_OK)
 
 # Vista para crear una guia despacho
 class CrearGuiaDespachoView(generics.CreateAPIView):

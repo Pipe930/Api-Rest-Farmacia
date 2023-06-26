@@ -19,7 +19,7 @@ class PedidoClienteSerializer(serializers.ModelSerializer):
         if attrs.get('id_sucursal') is not None and attrs.get('id_comuna') is not None:
             raise serializers.ValidationError('Solo debe especificar uno, sucursal o la comuna.')
         
-        if attrs.get('id_comuna') and attrs.get('direccion'):
+        if attrs.get('id_comuna') and attrs.get('direccion') is None:
             raise serializers.ValidationError('Si eligio envio a domicilio, tiene que indicar su direccion')
 
         return attrs

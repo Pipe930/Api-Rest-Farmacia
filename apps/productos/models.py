@@ -82,12 +82,3 @@ class DetalleBodega(models.Model):
     class Meta:
 
         db_table = "detallebodega"
-
-class Merma(models.Model):
-
-    id_merma = models.BigAutoField(primary_key=True)
-    fecha_emicion = models.DateField(auto_now_add=True)
-    cantidad_producto = models.PositiveIntegerField()
-    ubicacion = models.TextField()
-    id_producto = models.ForeignKey(Producto, on_delete=models.CASCADE)
-    id_bodega = models.ForeignKey(Bodega, on_delete=models.CASCADE)

@@ -3,7 +3,6 @@ from .models import Proveedor, Bodeguero, GuiaDespacho, ProductoDespacho, Pedido
 # from apps.usuarios.models import Usuario
 # from farmacia.permission import generar_username
 
-
 # Serializadores
     
 # Proveedor Serializer
@@ -138,6 +137,8 @@ class ActualizarEstadoGuiaDespachoSerializer(serializers.ModelSerializer):
 class GuiaDespachoSerializer(serializers.ModelSerializer):
 
     productos = ProductosGuiaDespachoSerializer(many=True)
+    id_sucursal = serializers.StringRelatedField()
+    id_bodeguero = serializers.StringRelatedField()
 
     class Meta:
 
@@ -147,10 +148,13 @@ class GuiaDespachoSerializer(serializers.ModelSerializer):
 # Factura Serializer
 class FacturaSerializer(serializers.ModelSerializer):
 
+    id_proveedor = serializers.StringRelatedField()
+    id_bodeguero = serializers.StringRelatedField()
+
     class Meta:
 
         model = Factura
-        fields = ["fecha_emicion", "productos", "precio_total", "id_proveedor", "id_bodeguero"]
+        fields = ["code", "fecha_emicion", "productos", "precio_total", "id_proveedor", "id_bodeguero"]
 
 # Crear una factura serializer
 class CrearFacturaSerializer(serializers.ModelSerializer):
@@ -161,8 +165,9 @@ class CrearFacturaSerializer(serializers.ModelSerializer):
     class Meta:
 
         model = Factura
-        fields = ["productos", "precio_total", "id_bodeguero", "id_proveedor", "pedido"]
+        fields = ["productos", "id_bodeguero", "id_proveedor", "pedido"]
 
+    # Funcion de realizar validaciones de los json que llegan desde el cliente
     def validate(self, attrs):
 
         productos = attrs.get("productos")
@@ -171,14 +176,16 @@ class CrearFacturaSerializer(serializers.ModelSerializer):
         if attrs.get("productos") == {}:
             raise serializers.ValidationError("El json no puede quedar vacio")
         
+        # Se hace un control de errores de si el json tiene le parametro "productos"
         try:
             productos_objetos = productos["productos"]
         except KeyError:
             raise serializers.ValidationError("El formato del json no es el correcto")
         
+        # Si la lista esta vasia retorna un error
         if productos_objetos == []:
             raise serializers.ValidationError("La lista de los productos no puede estar vacia")
-        
+
         for producto in productos_objetos:
 
             if producto.get("nombre") is None:

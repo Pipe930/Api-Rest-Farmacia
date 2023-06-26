@@ -95,11 +95,12 @@ class OfertaSerializer(serializers.ModelSerializer):
 class StockBodegaSerializer(serializers.ModelSerializer):
 
     id_producto = serializers.StringRelatedField()
+    id_bodega = serializers.StringRelatedField()
 
     class Meta:
 
         model = DetalleBodega
-        fields = "__all__"
+        fields = ["stock", "id_bodega", "id_producto"]
     
 class CrearStockBodegaSerializer(serializers.ModelSerializer):
 
@@ -120,11 +121,8 @@ class CrearStockBodegaSerializer(serializers.ModelSerializer):
             producto = DetalleBodega.objects.get(id_producto=id_producto, id_bodega=id_bodega)
 
             sumar_stock = producto.stock + stock
-
             producto.stock = sumar_stock
-
             stock_bodega = bodega.capacidad_ocupada
-
             nuevo_stock = stock + stock_bodega
 
             if bodega.capacidad > nuevo_stock:
@@ -143,7 +141,6 @@ class CrearStockBodegaSerializer(serializers.ModelSerializer):
         except DetalleBodega.DoesNotExist:
 
             stock_bodega = bodega.capacidad_ocupada
-
             nuevo_stock = stock + stock_bodega
 
             if bodega.capacidad > nuevo_stock:

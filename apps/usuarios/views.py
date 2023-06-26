@@ -26,8 +26,9 @@ class RegisterUserView(generics.CreateAPIView):
             serializer.save()
 
             return Response({
-                "data": serializer.data,
-                "message": "Se Registro Correctamente"
+                "status": "Created",
+                "message": "Se registro el usuario correctamente",
+                "data": serializer.data
                 }, status.HTTP_201_CREATED)
 
         return Response(serializer.errors, status.HTTP_400_BAD_REQUEST)
@@ -65,33 +66,30 @@ class LoginView(ObtainAuthToken):
                         login(request=request, user=user)
 
                         userJson = {
-                            "status": "OK",
                             "token": token.key,
                             "username": user.username,
                             "id_usuario": user.id,
                             "activate": user.is_active,
                             "staff": user.is_staff,
                             "id_carrito": carrito.id_carrito,
-                            "message": "Se inicio sesion correctamente. Bienvenido " + user.username
                         }
 
-                        return Response(userJson, status.HTTP_200_OK)
+                        return Response({"status": "OK", "message": "Se inicio sesion correctamente. Bienvenido " + user.username, "data": userJson}, status.HTTP_200_OK)
 
                     token.delete()
                     token = Token.objects.create(user=user)
+                    login(request=request, user=user)
 
                     userJson = {
-                        "status": "OK",
                         "token": token.key,
                         "username": user.username,
                         "user_id": user.id,
                         "activate": user.is_active,
                         "staff": user.is_staff,
-                        "id_carrito": carrito.id_carrito,
-                        "message": "Se inicio sesion correctamente. Bienvenido " + user.username
+                        "id_carrito": carrito.id_carrito
                     }
 
-                    return Response(userJson, status.HTTP_200_OK)
+                    return Response({"status": "OK", "message": "Se inicio sesion correctamente. Bienvenido " + user.username, "data": userJson}, status.HTTP_200_OK)
 
                 return Response({"message": "El usuario no esta activo"},  status.HTTP_401_UNAUTHORIZED)
 
@@ -133,7 +131,12 @@ class LogoutView(generics.RetrieveAPIView):
                     "token_message": mensaje_token
                 }
 
-                return Response(message, status.HTTP_200_OK)
+                return Response(
+                    {
+                        "status": "OK", 
+                        "message": "Se cerro la sesion con exito", 
+                        "messages": message
+                        }, status.HTTP_200_OK)
 
             return Response({"error": "Usuario no encontrado con esas credenciales"},
                             status.HTTP_400_BAD_REQUEST)

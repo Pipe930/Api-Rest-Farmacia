@@ -128,7 +128,7 @@ def set_precio_total(sender, instance, *args, **kwargs):
 
     for producto in productos:
 
-        precio_total += producto.get("precio")
+        precio_total += producto.get("precio") * producto.get("cantidad")
 
     instance.precio_total = precio_total
 
