@@ -1,7 +1,6 @@
 from rest_framework.response import Response
 from rest_framework import generics, status, filters
 from .models import Producto, Categoria, Oferta, Bodega, DetalleBodega
-from rest_framework.authentication import TokenAuthentication
 from .serializer import ( 
     OfertaSerializer, 
     ProductoSerializer, 
@@ -14,8 +13,7 @@ from .serializer import (
     ActualizarOfertaProductoSerializer)
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.parsers import JSONParser
-from rest_framework.permissions import AllowAny, IsAuthenticated
-from farmacia.permission import AdministradorPermission
+from rest_framework.permissions import AllowAny
 
 # --------------------- PRODUCTOS -----------------------------
 
@@ -105,8 +103,8 @@ class BuscarProductoView(generics.ListAPIView):
 class CrearProductoView(generics.CreateAPIView):
 
     serializer_class = CrearProductoSerializer
-    permission_classes = [IsAuthenticated, AdministradorPermission]
-    authentication_classes = [TokenAuthentication]
+    permission_classes = [AllowAny]
+    # authentication_classes = [TokenAuthentication]
     parser_classes = [JSONParser]
 
     def post(self, request, format=None):
@@ -165,8 +163,8 @@ class DetalleProductoView(generics.RetrieveAPIView):
 class ActualizarStockProductoView(generics.UpdateAPIView):
 
     serializer_class = ActualizarProductoStockSerializer
-    permission_classes = [IsAuthenticated, AdministradorPermission]
-    authentication_classes = [TokenAuthentication]
+    permission_classes = [AllowAny]
+    # authentication_classes = [TokenAuthentication]
     parser_classes = [JSONParser]
 
     def get_object(self, id:int):
@@ -212,8 +210,8 @@ class ActualizarOfertaProductoView(generics.UpdateAPIView):
 
     serializer_class = ActualizarOfertaProductoSerializer
     parser_classes = [JSONParser]
-    permission_classes = [IsAuthenticated, AdministradorPermission]
-    authentication_classes = [TokenAuthentication]
+    permission_classes = [AllowAny]
+    # authentication_classes = [TokenAuthentication]
 
     def get_object(self, id:int):
 
