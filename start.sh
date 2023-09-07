@@ -72,7 +72,7 @@ else
 fi
 
 # Creating the environment variable file path
-env="./core/.env"
+env="./farmacia/.env"
 
 # Creating the environment variables file
 touch "$env"
@@ -103,7 +103,7 @@ python manage.py migrate
 echo \n "Creacion del superusuario"
 echo \n "Ingrese una contrasena"
 
-python manage.py createsuperuser --username admin --first_name adminnombre --last_name adminapellido --email admin@gmail.com
+python manage.py createsuperuser --username admin --nombre adminnombre --apellido adminapellido --correo admin@gmail.com
 
 # Project execution
 python manage.py runserver
